@@ -1,0 +1,24 @@
+fileFormatVersion: 2
+guid: 0c673c11b15264d43829145619e645b5
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - defaultBlackSprite: {fileID: 21300000, guid: da56176a7864c204c98191d4f5df7817,
+      type: 3}
+  - defaultWhiteSprite: {fileID: 21300000, guid: a29caa86e59313644b16b2ff4f1002d0,
+      type: 3}
+  - noEffectSprite: {fileID: 21300000, guid: d8eba6bbc830f5a4b987314867816e52, type: 3}
+  - hoverSprite: {fileID: 21300000, guid: f4fe15a38f8e15d428d77b88042364cc, type: 3}
+  - selectedDirectSprite: {fileID: 21300000, guid: b767c8981e28ca84f87284329c1e7ccd,
+      type: 3}
+  - selectedIndirectSprite: {fileID: 21300000, guid: 3df3bdceb7d59774b9416c41b70ea17e,
+      type: 3}
+  - tileImage: {instanceID: 0}
+  - tileEffectImage: {instanceID: 0}
+  - rectTransform: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
