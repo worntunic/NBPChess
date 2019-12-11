@@ -7,7 +7,8 @@ namespace NBPChess
 	public class Board : MonoBehaviour
 	{
 		public Tile[,] board;
-		public Tile model;
+		public Piece[] pieces;
+		public TileUI model;
 
 		public void Awake()
 		{
@@ -20,12 +21,21 @@ namespace NBPChess
 			for(int i = 0; i < 8; i++)
 			{
 				for(int j = 0; j < 8; j++)
-			{
-
-					board[i,j] = Instantiate(model, transform);
-					board[i,j].Initialize(i, j);
+				{
+					board[i, j] = new Tile(i, j);
+					TileUI tile = Instantiate(model, transform);
+					tile.Initialize(board[i,j].tileID);
 				}
 			}
+		}
+
+		public Tile GetTile(int row, int col)
+		{
+			return board[row, col];
+		}
+		public Tile GetTile(Row row, Column col)
+		{
+			return GetTile((int) row, (int) col);
 		}
 	}
 }
