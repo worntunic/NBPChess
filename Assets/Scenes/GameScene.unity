@@ -354,7 +354,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   board: {fileID: 308730543}
   pieceManager: {fileID: 392747791}
-  artSet: {fileID: 11400000, guid: e33fb967ad34efc4eac7db493e935e63, type: 2}
+  artSets:
+  - {fileID: 11400000, guid: 5aa5553aa74a8fc46b421003bbe4b890, type: 2}
+  - {fileID: 11400000, guid: 55a2ac505a4f0364c8b2655a5dd779ab, type: 2}
+  - {fileID: 11400000, guid: bc94df516a515494d9bf45689ff232c9, type: 2}
+  - {fileID: 11400000, guid: dbe8350fb75ca214eb9bf6e499800349, type: 2}
+  - {fileID: 11400000, guid: 651930ae8c33b5f4bbfc25d5fddfeac3, type: 2}
+  - {fileID: 11400000, guid: e33fb967ad34efc4eac7db493e935e63, type: 2}
+  newArtSet: 0
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0

@@ -20,7 +20,7 @@ namespace NBPChess
             WhiteSpriteVersion.gameObject.SetActive(isWhite);
         }
 
-        public void SetArtVariants(PieceArtVariant artVariants)
+        public void ChangeArt(PieceArtVariant artVariants)
         {
             BlackSpriteVersion.sprite = artVariants.blackVersion;
             WhiteSpriteVersion.sprite = artVariants.whiteVersion;
@@ -30,7 +30,7 @@ namespace NBPChess
         {
             this.board = board;
             this.piece = PieceFactory.CreatePieceByType(pieceType, color, tile);
-            SetArtVariants(spriteVariants);
+            ChangeArt(spriteVariants);
             ChangeColor();
             MovePiece(tile);
             this.piece.pieceMoved += OnPieceMoved;

@@ -19,6 +19,7 @@ namespace NBPChess
         private Board board;
         public Transform piecesParent;
         private List<Piece> piecesState;
+        private Dictionary<Piece, PieceUI> piecesWithUI = new Dictionary<Piece, PieceUI>();
         private PieceType[] initialState = new PieceType[16]
         {
             PieceType.Rook, PieceType.Knight, PieceType.Bishop, PieceType.Queen, PieceType.King, PieceType.Bishop, PieceType.Knight, PieceType.Rook,
@@ -75,6 +76,7 @@ namespace NBPChess
 
             Tile tile = board.GetTile(row, col);
             pieceUI.Initialize(color, tile, board, artSet.GetSpriteVariants(pieceAndPrefab.type));
+            piecesWithUI.Add(pieceUI.GetPiece(), pieceUI);
             return pieceUI.GetPiece();
         }
 
@@ -88,6 +90,15 @@ namespace NBPChess
                 }
             }
             throw new Exception("There is no prefab for piece type " + type.ToString());
+        }
+
+        public void ChangeArtSet(ChessArtSet artSet)
+        {
+            this.artSet = artSet;
+            foreach(KeyValuePair<Piece, PieceUI> pieceWithUI in piecesWithUI)
+            {
+                pieceWithUI.Value.ChangeArt(artSet.GetSpriteVariants(pieceWithUI.Key.GetPieceType()));
+            }
         }
     }
 }
