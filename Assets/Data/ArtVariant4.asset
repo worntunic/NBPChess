@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a95b2e7551376ab49839128410d91332, type: 3}
+  m_Name: ArtVariant4
+  m_EditorClassIdentifier: 
+  whiteTile:
+    normalTile: {fileID: 21300000, guid: a29caa86e59313644b16b2ff4f1002d0, type: 3}
+    selectedTile: {fileID: 21300000, guid: b767c8981e28ca84f87284329c1e7ccd, type: 3}
+    hoverTile: {fileID: 21300000, guid: 88851ef3704b5b447aaef431c1fec456, type: 3}
+    markedSprite: {fileID: 21300000, guid: 3df3bdceb7d59774b9416c41b70ea17e, type: 3}
+    noEffectSprite: {fileID: 21300000, guid: d8eba6bbc830f5a4b987314867816e52, type: 3}
+  blackTile:
+    normalTile: {fileID: 21300000, guid: da56176a7864c204c98191d4f5df7817, type: 3}
+    selectedTile: {fileID: 21300000, guid: b767c8981e28ca84f87284329c1e7ccd, type: 3}
+    hoverTile: {fileID: 21300000, guid: 88851ef3704b5b447aaef431c1fec456, type: 3}
+    markedSprite: {fileID: 21300000, guid: 3df3bdceb7d59774b9416c41b70ea17e, type: 3}
+    noEffectSprite: {fileID: 21300000, guid: d8eba6bbc830f5a4b987314867816e52, type: 3}
+  sprites:
+  - whiteVersion: {fileID: -4854278784346132291, guid: 8b2bc36ce3fcb6a44982a9205723b3ab,
+      type: 3}
+    blackVersion: {fileID: 8497572923202470835, guid: 8b2bc36ce3fcb6a44982a9205723b3ab,
+      type: 3}
+  - whiteVersion: {fileID: 4320763338785271842, guid: 8b2bc36ce3fcb6a44982a9205723b3ab,
+      type: 3}
+    blackVersion: {fileID: 8830613989559378663, guid: 8b2bc36ce3fcb6a44982a9205723b3ab,
+      type: 3}
+  - whiteVersion: {fileID: 6300961450455328119, guid: 8b2bc36ce3fcb6a44982a9205723b3ab,
+      type: 3}
+    blackVersion: {fileID: 3750207851491730419, guid: 8b2bc36ce3fcb6a44982a9205723b3ab,
+      type: 3}
+  - whiteVersion: {fileID: -4843583316311172960, guid: 8b2bc36ce3fcb6a44982a9205723b3ab,
+      type: 3}
+    blackVersion: {fileID: -7973279105474740340, guid: 8b2bc36ce3fcb6a44982a9205723b3ab,
+      type: 3}
+  - whiteVersion: {fileID: 4044653918428631147, guid: 8b2bc36ce3fcb6a44982a9205723b3ab,
+      type: 3}
+    blackVersion: {fileID: -6778984532436017422, guid: 8b2bc36ce3fcb6a44982a9205723b3ab,
+      type: 3}
+  - whiteVersion: {fileID: 7750881246331170119, guid: 8b2bc36ce3fcb6a44982a9205723b3ab,
+      type: 3}
+    blackVersion: {fileID: -7281320443220792915, guid: 8b2bc36ce3fcb6a44982a9205723b3ab,
+      type: 3}

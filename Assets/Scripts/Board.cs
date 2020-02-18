@@ -9,10 +9,21 @@ namespace NBPChess
 		public Tile[,] board;
 		public Piece[] pieces;
 		public TileUI model;
+        private Dictionary<Tile, TileUI> tilesWithUI = new Dictionary<Tile, TileUI>();
+        private ChessArtSet artSet;
 
-		public void Awake()
+
+        public void ChangeArtSet(ChessArtSet artSet)
+        {
+            this.artSet = artSet;
+            foreach (KeyValuePair<Tile, TileUI> tileWithUI in tilesWithUI) {
+                tileWithUI.Value.ChangeArt(artSet.GetTileArt(tileWithUI.Key.tileColor));
+            }
+        }
+		public void Initalize(ChessArtSet artSet)
 		{
-			GenerateBoard();
+            this.artSet = artSet;
+            GenerateBoard();
 		}
 
 		public void GenerateBoard()
@@ -24,7 +35,9 @@ namespace NBPChess
 				{
 					board[i, j] = new Tile(i, j);
 					TileUI tile = Instantiate(model, transform);
-					tile.Initialize(board[i,j].tileID);
+                    tilesWithUI.Add(board[i, j], tile);
+
+                    tile.Initialize(board[i,j], artSet.GetTileArt(board[i, j].tileColor));
 				}
 			}
 		}
@@ -37,6 +50,10 @@ namespace NBPChess
 		{
 			return GetTile((int) row, (int) col);
 		}
+        public TileUI GetTileUI(Tile tile)
+        {
+            return tilesWithUI[tile];
+        }
 	}
 }
 

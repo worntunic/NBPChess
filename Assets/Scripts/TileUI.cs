@@ -12,34 +12,26 @@ namespace NBPChess
 		{
 			Default, SelectedDirect, SelectedIndirect
 		}
-		public Sprite defaultBlackSprite, defaultWhiteSprite;
-		public Sprite noEffectSprite, hoverSprite, selectedDirectSprite, selectedIndirectSprite;
+        //public Sprite defaultBlackSprite, defaultWhiteSprite;
+        //public Sprite noEffectSprite, hoverSprite, selectedDirectSprite, selectedIndirectSprite;
+        private TileArtVariant tileArt;
 		public Image tileBkgImage;
 		public Image tileSelectionEffectImage;
 		public Image tileHoverEffectImage;
 		[SerializeField]
-		public TileID tileID;
-		public TileColor color;
+		public Tile tile;
 		private bool hoverState = false;
 		private TileSelectionState selectedState;
 		public RectTransform rectTransform;
 		private static float percentStep = 0.125f; 
 
-		public void Initialize(TileID tile)
+		public void Initialize(Tile tile, TileArtVariant artVariant)
 		{
-			tileID = tile;
+			this.tile = tile;
 			int row = tile.RowNum();
 			int col = tile.ColNum();
-			if ((row + col) % 2 == 0)
-			{
-				color = TileColor.Black;
-				tileBkgImage.sprite = defaultBlackSprite;
-			} else
-			{
-				color = TileColor.White;
-				tileBkgImage.sprite = defaultWhiteSprite;
-			}
-			SetPosition(row, col);
+            ChangeArt(artVariant);
+            SetPosition(row, col);
 		}
 
 		private void SetPosition(int row, int col)
@@ -47,6 +39,11 @@ namespace NBPChess
 			rectTransform.anchorMin = new Vector2(col * percentStep, row * percentStep);
 			rectTransform.anchorMax = new Vector2((col + 1) * percentStep, (row + 1) * percentStep);
 		}
+
+        public RectTransform GetRectTransform()
+        {
+            return rectTransform;
+        }
 
 		private void ChangeTileSelectionState(TileSelectionState newState)
 		{
@@ -62,21 +59,21 @@ namespace NBPChess
 		{
 			if (hoverState)
 			{
-				tileHoverEffectImage.sprite = hoverSprite;
+				tileHoverEffectImage.sprite = tileArt.hoverTile;
 			} else
 			{
-				tileHoverEffectImage.sprite = noEffectSprite;
+				tileHoverEffectImage.sprite = tileArt.noEffectSprite;
 			}
 
 			if (selectedState == TileSelectionState.Default)
 			{
-				tileSelectionEffectImage.sprite = noEffectSprite;
+				tileSelectionEffectImage.sprite = tileArt.noEffectSprite;
 			} else if (selectedState == TileSelectionState.SelectedDirect)
 			{
-				tileSelectionEffectImage.sprite = selectedDirectSprite;
+				tileSelectionEffectImage.sprite = tileArt.selectedTile;
 			} else if (selectedState == TileSelectionState.SelectedIndirect)
 			{
-				tileSelectionEffectImage.sprite = selectedIndirectSprite;
+				tileSelectionEffectImage.sprite = tileArt.markedSprite;
 			}
 		}
 
@@ -94,5 +91,12 @@ namespace NBPChess
 		{
 			ChangeTileSelectionState(TileSelectionState.SelectedDirect);
 		}
+
+        public void ChangeArt(TileArtVariant artVariant)
+        {
+            this.tileArt = artVariant;
+            this.tileBkgImage.sprite = tileArt.normalTile;
+            ChangeSprite();
+        }
 	}
 }

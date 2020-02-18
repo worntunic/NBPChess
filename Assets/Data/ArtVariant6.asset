@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a95b2e7551376ab49839128410d91332, type: 3}
+  m_Name: ArtVariant6
+  m_EditorClassIdentifier: 
+  whiteTile:
+    normalTile: {fileID: 21300000, guid: a29caa86e59313644b16b2ff4f1002d0, type: 3}
+    selectedTile: {fileID: 21300000, guid: b767c8981e28ca84f87284329c1e7ccd, type: 3}
+    hoverTile: {fileID: 21300000, guid: 88851ef3704b5b447aaef431c1fec456, type: 3}
+    markedSprite: {fileID: 21300000, guid: 3df3bdceb7d59774b9416c41b70ea17e, type: 3}
+    noEffectSprite: {fileID: 21300000, guid: d8eba6bbc830f5a4b987314867816e52, type: 3}
+  blackTile:
+    normalTile: {fileID: 21300000, guid: da56176a7864c204c98191d4f5df7817, type: 3}
+    selectedTile: {fileID: 21300000, guid: b767c8981e28ca84f87284329c1e7ccd, type: 3}
+    hoverTile: {fileID: 21300000, guid: 88851ef3704b5b447aaef431c1fec456, type: 3}
+    markedSprite: {fileID: 21300000, guid: 3df3bdceb7d59774b9416c41b70ea17e, type: 3}
+    noEffectSprite: {fileID: 21300000, guid: d8eba6bbc830f5a4b987314867816e52, type: 3}
+  sprites:
+  - whiteVersion: {fileID: 21300000, guid: a88e364abfc6aa342af83c106d20431a, type: 3}
+    blackVersion: {fileID: 21300000, guid: c5378f1f43f18564b860d9f6b6e1ef1b, type: 3}
+  - whiteVersion: {fileID: 21300000, guid: a783b996e940fdc4ab266345c2ebba46, type: 3}
+    blackVersion: {fileID: 21300000, guid: f561a50c5d9340944b1c153abae02a7c, type: 3}
+  - whiteVersion: {fileID: 21300000, guid: 3686cc69b52b5044db65f82f8f60b509, type: 3}
+    blackVersion: {fileID: 21300000, guid: edfd4cb7220d4ef4ebb03cae6665a880, type: 3}
+  - whiteVersion: {fileID: 21300000, guid: a20104ca687000540bfb0cd9b0118688, type: 3}
+    blackVersion: {fileID: 21300000, guid: ece19b8cdfb29f64086e22d1ab737048, type: 3}
+  - whiteVersion: {fileID: 21300000, guid: a7e368b76e5d83a46946d1445f28ce10, type: 3}
+    blackVersion: {fileID: 21300000, guid: 158c37ba672528b45bcb0f1880c87a37, type: 3}
+  - whiteVersion: {fileID: 21300000, guid: 2198a1469d928c74d8fba63ad557d900, type: 3}
+    blackVersion: {fileID: 21300000, guid: 3a7c779c6bb6d2e418e7017aadc4093f, type: 3}

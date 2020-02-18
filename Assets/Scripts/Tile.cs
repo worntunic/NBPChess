@@ -13,46 +13,38 @@ namespace NBPChess
 	{
 		White, Black
 	}
-	[System.Serializable]
-	public struct TileID
-	{
-
-		public Column col;
-		public Row row;
-
-		public TileID(int row, int col)
-		{
-			this.row = (Row)row;
-			this.col = (Column)col;
-		}
-
-		public int RowNum()
-		{
-			return (int)row;
-		}
-		public int ColNum()
-		{
-			return (int)col;
-		}
-
-		public override string ToString()
-		{
-			return col.ToString() + row.ToString();
-		}
-	}
 
 	public class Tile
-	{
-		public TileID tileID;
-		public Piece piece;
+    {
+        public Column col { get; }
+        public Row row { get; }
+        public Piece piece;
+        public TileColor tileColor { get; }
 
 		public Tile(int row, int col, Piece piece = null)
 		{
-			tileID = new TileID(row, col);
+            this.row = (Row)row;
+            this.col = (Column)col;
+            if ((row + col) % 2 == 0)
+            {
+                tileColor = TileColor.White;
+            } else
+            {
+                tileColor = TileColor.Black;
+            }
 			this.piece = piece;
 		}
 
-		public bool IsTileOccupied()
+        public int RowNum()
+        {
+            return (int)row;
+        }
+        public int ColNum()
+        {
+            return (int)col;
+        }
+
+        public bool IsTileOccupied()
 		{
 			return piece != null;
 		}
@@ -64,5 +56,17 @@ namespace NBPChess
 		{
 			return GetPieceColor() != currentPlayer;
 		}
-	}
+        public void SetCurrentPiece(Piece piece)
+        {
+            this.piece = piece;
+        }
+        public void RemoveCurrentPiece()
+        {
+            this.piece = null;
+        }
+        public override string ToString()
+        {
+            return col.ToString() + row.ToString();
+        }
+    }
 }
