@@ -64,6 +64,7 @@ namespace NBPChess
         }
 
 		public abstract List<Tile> AvailableMoves(Board board);
+
 		public PieceColor GetColor()
 		{
 			return pieceColor;

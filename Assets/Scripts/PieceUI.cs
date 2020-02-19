@@ -34,6 +34,7 @@ namespace NBPChess
         public void Initialize(PieceColor color, Tile tile, Board board, PieceArtVariant spriteVariants)
         {
             this.board = board;
+            board.RegisterPiece(this);
             this.piece = PieceFactory.CreatePieceByType(pieceType, color, tile);
             ChangeArt(spriteVariants);
             ChangeColor();
@@ -84,7 +85,7 @@ namespace NBPChess
         public void OnEndDrag(PointerEventData eventData)
         {
             board.DeselectAllTiles();
-            currentImage.raycastTarget = true;
+            board.SetRayBlockingForAllPieces(true);
             if (board.IsPositionOnBoard(eventData.position))
             {
                 Tile newTile = board.GetCurrentlyPointedTile();
@@ -92,6 +93,7 @@ namespace NBPChess
                 if (availableMoves.Contains(newTile))
                 {
                     MovePiece(newTile);
+                    piece.SetTile(newTile);
                 } else
                 {
                     MovePiece(currentTileUI);
@@ -114,7 +116,12 @@ namespace NBPChess
             {
                 board.HighlightTile(availableTile);
             }
-            currentImage.raycastTarget = false;
+            board.SetRayBlockingForAllPieces(false);
+        }
+
+        public void SetRayBlocking(bool shouldRayBlock)
+        {
+            currentImage.raycastTarget = shouldRayBlock;
         }
     }
 }

@@ -9,12 +9,12 @@ namespace NBPChess
 	public class Board : MonoBehaviour
 	{
 		public Tile[,] board;
-		public Piece[] pieces;
 		public TileUI model;
         private Dictionary<Tile, TileUI> tilesWithUI = new Dictionary<Tile, TileUI>();
         private ChessArtSet artSet;
         private RectTransform boardBoundaryRect;
         private TileUI currentlyPointedTile;
+        private List<PieceUI> activePieces = new List<PieceUI>();
 
         public void ChangeArtSet(ChessArtSet artSet)
         {
@@ -100,6 +100,24 @@ namespace NBPChess
             {
                 tilePair.Value.ChangeTileSelectionState(TileSelectionState.Default);
             }
+        }
+
+        public void SetRayBlockingForAllPieces(bool shouldBlockRays)
+        {
+            for (int i = 0; i < activePieces.Count; i++)
+            {
+                activePieces[i].SetRayBlocking(shouldBlockRays);
+            }
+        }
+
+        public void RegisterPiece(PieceUI piece)
+        {
+            activePieces.Add(piece);
+        }
+
+        public void RemovePiece(PieceUI piece)
+        {
+            activePieces.Remove(piece);
         }
     }
 }
