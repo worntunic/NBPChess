@@ -361,7 +361,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: dbe8350fb75ca214eb9bf6e499800349, type: 2}
   - {fileID: 11400000, guid: 651930ae8c33b5f4bbfc25d5fddfeac3, type: 2}
   - {fileID: 11400000, guid: e33fb967ad34efc4eac7db493e935e63, type: 2}
-  newArtSet: 0
+  newArtSet: 4
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
@@ -486,7 +486,7 @@ Canvas:
   m_GameObject: {fileID: 1718179632}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 1
+  m_RenderMode: 0
   m_Camera: {fileID: 519420031}
   m_PlaneDistance: 100
   m_PixelPerfect: 1

@@ -14,12 +14,18 @@ namespace NBPChess
 		White, Black
 	}
 
-	public class Tile
+    public enum TileSelectionState
+    {
+        Default, Selected, Highlighted
+    }
+
+    public class Tile
     {
         public Column col { get; }
         public Row row { get; }
         public Piece piece;
         public TileColor tileColor { get; }
+
 
 		public Tile(int row, int col, Piece piece = null)
 		{

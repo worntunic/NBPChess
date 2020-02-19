@@ -47,7 +47,10 @@ namespace NBPChess
             this.pieceColor = color;
             SetTile(tile);
         }
-
+        public Tile GetTile()
+        {
+            return currentTile;
+        }
         public void SetTile(Tile newTile)
         {
             Tile oldTile = currentTile;

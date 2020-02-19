@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace NBPChess
@@ -35,6 +36,10 @@ namespace NBPChess
             piecesState.AddRange(CreatePieces(PieceColor.Black));
         }
 
+        public List<PieceUI> GetPieces()
+        {
+            return piecesWithUI.Values.ToList();
+        }
 
         private List<Piece> CreatePieces(PieceColor color)
         {

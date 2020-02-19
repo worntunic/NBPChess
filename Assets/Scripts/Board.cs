@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace NBPChess
@@ -11,7 +13,8 @@ namespace NBPChess
 		public TileUI model;
         private Dictionary<Tile, TileUI> tilesWithUI = new Dictionary<Tile, TileUI>();
         private ChessArtSet artSet;
-
+        private RectTransform boardBoundaryRect;
+        private TileUI currentlyPointedTile;
 
         public void ChangeArtSet(ChessArtSet artSet)
         {
@@ -22,6 +25,7 @@ namespace NBPChess
         }
 		public void Initalize(ChessArtSet artSet)
 		{
+            this.boardBoundaryRect = (RectTransform)transform;
             this.artSet = artSet;
             GenerateBoard();
 		}
@@ -37,7 +41,7 @@ namespace NBPChess
 					TileUI tile = Instantiate(model, transform);
                     tilesWithUI.Add(board[i, j], tile);
 
-                    tile.Initialize(board[i,j], artSet.GetTileArt(board[i, j].tileColor));
+                    tile.Initialize(this, board[i,j], artSet.GetTileArt(board[i, j].tileColor));
 				}
 			}
 		}
@@ -54,6 +58,49 @@ namespace NBPChess
         {
             return tilesWithUI[tile];
         }
-	}
+
+        public TileUI[] GetTiles()
+        {
+            return tilesWithUI.Values.ToArray();
+        }
+
+        public bool IsPositionOnBoard(Vector2 position)
+        {
+            return RectTransformUtility.RectangleContainsScreenPoint(boardBoundaryRect, position);
+        }
+
+        public void SetPointedTile(TileUI pointedTile)
+        {
+            currentlyPointedTile = pointedTile;
+        }
+
+        public Tile GetCurrentlyPointedTile()
+        {
+            return currentlyPointedTile.tile;
+        }
+
+        public void SelectTile(Tile tile)
+        {
+            tilesWithUI[tile].ChangeTileSelectionState(TileSelectionState.Selected);
+        }
+
+        public void DeselectTile(Tile tile)
+        {
+            tilesWithUI[tile].ChangeTileSelectionState(TileSelectionState.Default);
+        }
+
+        public void HighlightTile(Tile tile)
+        {
+            tilesWithUI[tile].ChangeTileSelectionState(TileSelectionState.Highlighted);
+        }
+
+        public void DeselectAllTiles()
+        {
+            foreach (KeyValuePair<Tile, TileUI> tilePair in tilesWithUI)
+            {
+                tilePair.Value.ChangeTileSelectionState(TileSelectionState.Default);
+            }
+        }
+    }
 }
 

@@ -6,12 +6,9 @@ using UnityEngine.UI;
 
 namespace NBPChess
 {
-	public class TileUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+	public class TileUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 	{
-		private enum TileSelectionState
-		{
-			Default, SelectedDirect, SelectedIndirect
-		}
+
         //public Sprite defaultBlackSprite, defaultWhiteSprite;
         //public Sprite noEffectSprite, hoverSprite, selectedDirectSprite, selectedIndirectSprite;
         private TileArtVariant tileArt;
@@ -23,10 +20,12 @@ namespace NBPChess
 		private bool hoverState = false;
 		private TileSelectionState selectedState;
 		public RectTransform rectTransform;
-		private static float percentStep = 0.125f; 
+		private static float percentStep = 0.125f;
+        private Board board;
 
-		public void Initialize(Tile tile, TileArtVariant artVariant)
+        public void Initialize(Board board, Tile tile, TileArtVariant artVariant)
 		{
+            this.board = board;
 			this.tile = tile;
 			int row = tile.RowNum();
 			int col = tile.ColNum();
@@ -45,7 +44,7 @@ namespace NBPChess
             return rectTransform;
         }
 
-		private void ChangeTileSelectionState(TileSelectionState newState)
+		public void ChangeTileSelectionState(TileSelectionState newState)
 		{
 			selectedState = newState;
 			ChangeSprite();
@@ -68,10 +67,10 @@ namespace NBPChess
 			if (selectedState == TileSelectionState.Default)
 			{
 				tileSelectionEffectImage.sprite = tileArt.noEffectSprite;
-			} else if (selectedState == TileSelectionState.SelectedDirect)
+			} else if (selectedState == TileSelectionState.Selected)
 			{
 				tileSelectionEffectImage.sprite = tileArt.selectedTile;
-			} else if (selectedState == TileSelectionState.SelectedIndirect)
+			} else if (selectedState == TileSelectionState.Highlighted)
 			{
 				tileSelectionEffectImage.sprite = tileArt.markedSprite;
 			}
@@ -80,6 +79,7 @@ namespace NBPChess
 		public void OnPointerEnter(PointerEventData eventData)
 		{
 			ChangeTileHoverState(true);
+            board.SetPointedTile(this);
 		}
 
 		public void OnPointerExit(PointerEventData eventData)
@@ -87,16 +87,16 @@ namespace NBPChess
 			ChangeTileHoverState(false);
 		}
 
-		public void OnPointerClick(PointerEventData eventData)
-		{
-			ChangeTileSelectionState(TileSelectionState.SelectedDirect);
-		}
-
         public void ChangeArt(TileArtVariant artVariant)
         {
             this.tileArt = artVariant;
             this.tileBkgImage.sprite = tileArt.normalTile;
             ChangeSprite();
+        }
+
+        public void DeselectTile()
+        {
+            ChangeTileSelectionState(TileSelectionState.Default);
         }
 	}
 }

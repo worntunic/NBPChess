@@ -31,7 +31,7 @@ PrefabInstance:
     - target: {fileID: 1891887612772775434, guid: 69544e6cc73c85046801e2eafe052425,
         type: 3}
       propertyPath: m_RaycastTarget
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1891887612772775434, guid: 69544e6cc73c85046801e2eafe052425,
         type: 3}
@@ -47,7 +47,7 @@ PrefabInstance:
     - target: {fileID: 1891887613550529043, guid: 69544e6cc73c85046801e2eafe052425,
         type: 3}
       propertyPath: m_RaycastTarget
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1891887613550529043, guid: 69544e6cc73c85046801e2eafe052425,
         type: 3}
