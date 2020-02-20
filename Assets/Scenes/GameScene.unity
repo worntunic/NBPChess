@@ -231,10 +231,10 @@ MonoBehaviour:
   - type: 3
     prefab: {fileID: 3798771705265557666, guid: 320c8698bf6b9cc4fae091f9ca7c3ed2,
       type: 3}
-  - type: 5
+  - type: 4
     prefab: {fileID: 3780902209065061600, guid: c2d818c1008907e4c8e918cd0e40c651,
       type: 3}
-  - type: 4
+  - type: 5
     prefab: {fileID: 2507529059233688667, guid: b292b795ac3770f42b09c68b6e35bf41,
       type: 3}
   piecesParent: {fileID: 392747790}

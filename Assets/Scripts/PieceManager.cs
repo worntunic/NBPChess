@@ -18,6 +18,7 @@ namespace NBPChess
         public PieceAndPrefab[] piecePrefabs = new PieceAndPrefab[6];
         private ChessArtSet artSet;
         private Board board;
+        private MoveManager moveManager;
         public Transform piecesParent;
         private List<Piece> piecesState;
         private Dictionary<Piece, PieceUI> piecesWithUI = new Dictionary<Piece, PieceUI>();
@@ -27,13 +28,15 @@ namespace NBPChess
             PieceType.Pawn, PieceType.Pawn, PieceType.Pawn,  PieceType.Pawn, PieceType.Pawn, PieceType.Pawn, PieceType.Pawn, PieceType.Pawn
         };
 
-        public void Initalize(Board board, ChessArtSet artSet)
+        public void Initalize(Board board, ChessArtSet artSet, MoveManager moveManager)
         {
+            this.moveManager = moveManager;
             this.board = board;
             this.artSet = artSet;
             piecesState = new List<Piece>();
             piecesState.AddRange(CreatePieces(PieceColor.White));
             piecesState.AddRange(CreatePieces(PieceColor.Black));
+
         }
 
         public List<PieceUI> GetPieces()
@@ -80,7 +83,7 @@ namespace NBPChess
             PieceUI pieceUI = Instantiate(pieceAndPrefab.prefab, piecesParent);
 
             Tile tile = board.GetTile(row, col);
-            pieceUI.Initialize(color, tile, board, artSet.GetSpriteVariants(pieceAndPrefab.type));
+            pieceUI.Initialize(color, tile, board, artSet.GetSpriteVariants(pieceAndPrefab.type), moveManager);
             piecesWithUI.Add(pieceUI.GetPiece(), pieceUI);
             return pieceUI.GetPiece();
         }

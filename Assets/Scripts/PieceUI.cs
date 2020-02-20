@@ -16,6 +16,7 @@ namespace NBPChess
         public Image WhiteSpriteVersion, BlackSpriteVersion;
         private Image currentImage;
         private TileUI currentTileUI;
+        private MoveManager moveManager;
 
         private void ChangeColor()
         {
@@ -31,8 +32,9 @@ namespace NBPChess
             WhiteSpriteVersion.sprite = artVariants.whiteVersion;
         }
 
-        public void Initialize(PieceColor color, Tile tile, Board board, PieceArtVariant spriteVariants)
+        public void Initialize(PieceColor color, Tile tile, Board board, PieceArtVariant spriteVariants, MoveManager moveManager)
         {
+            this.moveManager = moveManager;
             this.board = board;
             board.RegisterPiece(this);
             this.piece = PieceFactory.CreatePieceByType(pieceType, color, tile);
@@ -40,6 +42,12 @@ namespace NBPChess
             ChangeColor();
             MovePiece(tile);
             this.piece.pieceMoved += OnPieceMoved;
+            this.piece.pieceCapturedStateChanged += OnPieceCaptured;
+        }
+
+        private void OnPieceCaptured(bool captured)
+        {
+            this.gameObject.SetActive(!captured);
         }
 
         private void OnPieceMoved(Tile oldTile, Tile newTile)
@@ -47,11 +55,8 @@ namespace NBPChess
             currentTileUI = board.GetTileUI(newTile);
             MovePiece(newTile);
         }
-        private void MovePiece(Tile tile)
-        {
-            MovePiece(board.GetTileUI(tile));
-        } 
-        private void MovePiece(TileUI tileUI)
+
+        private void SetPiecePosition(TileUI tileUI)
         {
             currentTileUI = tileUI;
             RectTransform tileRect = currentTileUI.GetRectTransform();
@@ -59,11 +64,17 @@ namespace NBPChess
             rectTransform.anchorMax = tileRect.anchorMax;
             rectTransform.anchoredPosition = Vector2.zero;
         }
+        private void MovePiece(Tile tile)
+        {
+            MovePiece(board.GetTileUI(tile));
+        } 
+        private void MovePiece(TileUI tileUI)
+        {
+            SetPiecePosition(tileUI);
+        }
 
         private void MovePieceOutOfAnchor(Vector2 deltaMovement)
         {
-            /*Debug.Log(rectTransform.anchoredPosition);
-            Debug.Log(deltaMovement);*/
             rectTransform.anchoredPosition = rectTransform.anchoredPosition + deltaMovement;
         }
 
@@ -89,11 +100,10 @@ namespace NBPChess
             if (board.IsPositionOnBoard(eventData.position))
             {
                 Tile newTile = board.GetCurrentlyPointedTile();
-                List<Tile> availableMoves = piece.AvailableMoves(board);
+                List<Tile> availableMoves = moveManager.GetAvailableMoves(piece, board);
                 if (availableMoves.Contains(newTile))
                 {
-                    MovePiece(newTile);
-                    piece.SetTile(newTile);
+                    moveManager.DoMove(piece.GetTile(), newTile);
                 } else
                 {
                     MovePiece(currentTileUI);

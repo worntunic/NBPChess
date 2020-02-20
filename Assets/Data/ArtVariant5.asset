@@ -29,9 +29,9 @@ MonoBehaviour:
     blackVersion: {fileID: 21300000, guid: 190e8a9ab87d11c449f0c31a973e9d10, type: 3}
   - whiteVersion: {fileID: 21300000, guid: 9842d77aac6708748be841853ea61149, type: 3}
     blackVersion: {fileID: 21300000, guid: 4a6f3249d439d6249b5228b3d3e6535e, type: 3}
-  - whiteVersion: {fileID: 21300000, guid: b768da2ee44099646b3ea0efd3c41dc9, type: 3}
-    blackVersion: {fileID: 21300000, guid: a73422633cf7ec54a93251084aa255b2, type: 3}
   - whiteVersion: {fileID: 21300000, guid: debfbd760a77acf4ea4ee20642206480, type: 3}
+    blackVersion: {fileID: 21300000, guid: a73422633cf7ec54a93251084aa255b2, type: 3}
+  - whiteVersion: {fileID: 21300000, guid: b768da2ee44099646b3ea0efd3c41dc9, type: 3}
     blackVersion: {fileID: 21300000, guid: 5b8fca8ee1bca5143961a1ef638003a7, type: 3}
   - whiteVersion: {fileID: 21300000, guid: ebfd3d5ffbccc0d45bd9aa0d53b34fff, type: 3}
     blackVersion: {fileID: 21300000, guid: 7be6e96aff5286a46a1c6cda2e301db1, type: 3}
