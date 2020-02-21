@@ -36,6 +36,7 @@ namespace NBPChess
             piecesState = new List<Piece>();
             piecesState.AddRange(CreatePieces(PieceColor.White));
             piecesState.AddRange(CreatePieces(PieceColor.Black));
+            moveManager.RegisterAllPieces(piecesState);
 
         }
 

@@ -25,8 +25,8 @@ namespace NBPChess
         }
         public void CreateGame()
         {
-            moveManager = new MoveManager();
             board.Initalize(artSets[currentArtSet]);
+            moveManager = new MoveManager(board);
             pieceManager.Initalize(board, artSets[currentArtSet], moveManager);
         }
 

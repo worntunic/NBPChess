@@ -37,7 +37,7 @@ namespace NBPChess
             this.moveManager = moveManager;
             this.board = board;
             board.RegisterPiece(this);
-            this.piece = PieceFactory.CreatePieceByType(pieceType, color, tile);
+            this.piece = PieceFactory.CreatePieceByType(pieceType, color, tile, moveManager);
             ChangeArt(spriteVariants);
             ChangeColor();
             MovePiece(tile);
