@@ -90,11 +90,19 @@ namespace NBPChess
 
         public void OnDrag(PointerEventData eventData)
         {
+            if (!moveManager.CanPieceMove(piece.GetColor()))
+            {
+                return;
+            }
             MovePieceOutOfAnchor(eventData.delta);
         }
 
         public void OnEndDrag(PointerEventData eventData)
         {
+            if (!moveManager.CanPieceMove(piece.GetColor()))
+            {
+                return;
+            }
             board.DeselectAllTiles();
             board.SetRayBlockingForAllPieces(true);
             if (board.IsPositionOnBoard(eventData.position))
@@ -125,6 +133,10 @@ namespace NBPChess
 
         public void OnBeginDrag(PointerEventData eventData)
         {
+            if (!moveManager.CanPieceMove(piece.GetColor()))
+            {
+                return;
+            }
             board.DeselectAllTiles();
             Tile tile = piece.GetTile();
             List<ChessMove> availableMoves = moveManager.AvailableMoves(piece);

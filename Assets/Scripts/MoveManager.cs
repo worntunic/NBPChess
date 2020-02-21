@@ -59,14 +59,23 @@ namespace NBPChess
 
     public class MoveManager
     {
+        private ChessGameManager gameManager;
         private Board board;
         private List<Piece> pieces = new List<Piece>();
         private List<ChessMove> moveHistory = new List<ChessMove>();
         private Dictionary<Piece, List<Tile>> whiteThreatenedSpaces = new Dictionary<Piece, List<Tile>>();
         private Dictionary<Piece, List<Tile>> blackThreatenedSpaces = new Dictionary<Piece, List<Tile>>();
 
-        public MoveManager(Board board)
+        public bool CanPieceMove(PieceColor color)
         {
+            bool canItMove = (gameManager.GetGameState() == GameState.WhiteMove && color == PieceColor.White)
+                || (gameManager.GetGameState() == GameState.BlackMove && color == PieceColor.Black);
+            return canItMove;
+        }
+
+        public MoveManager(ChessGameManager gameManager, Board board)
+        {
+            this.gameManager = gameManager;
             this.board = board;
         }
         public void RegisterAllPieces(List<Piece> pieces)
@@ -151,6 +160,10 @@ namespace NBPChess
 
         public void DoMove(ChessMove move, bool simulate = false)
         {
+            if (!simulate && !CanPieceMove(move.activePiece.GetColor()))
+            {
+                return;
+            }
             if (!simulate)
             {
                 moveHistory.Add(move);
@@ -165,11 +178,19 @@ namespace NBPChess
             {
                 move.passivePiece.Capture(!simulate);
             }
+            if (!simulate)
+            {
+                gameManager.ChangeGameState();
+            }
             ChangeThreatenedSpaces();
         }
 
         public void UndoMove(ChessMove move, bool simulate = false)
         {
+            if (!simulate && !CanPieceMove(move.activePiece.GetColor()))
+            {
+                return;
+            }
             if (!simulate)
             {
                 moveHistory.Remove(move);
@@ -183,6 +204,10 @@ namespace NBPChess
             {
                 move.passivePiece.SetTile(move.toTile, !simulate);
                 move.passivePiece.RestoreCaptured(!simulate);
+            }
+            if (!simulate)
+            {
+                gameManager.ChangeGameState();
             }
             ChangeThreatenedSpaces();
         }
@@ -297,6 +322,23 @@ namespace NBPChess
                 UndoMove(moves[i], true);
             }
             return filteredMoves;
+        }
+
+        public void GetMoveCount(out int moveCountWhite, out int moveCountBlack)
+        {
+            moveCountWhite = 0;
+            moveCountBlack = 0;
+            for (int i = 0; i < pieces.Count; i++)
+            {
+                if (pieces[i].GetColor() == PieceColor.White)
+                {
+                    moveCountWhite += AvailableMoves(pieces[i]).Count;
+                }
+                else 
+                {
+                    moveCountBlack += AvailableMoves(pieces[i]).Count;
+                }
+            }
         }
     }
 }
