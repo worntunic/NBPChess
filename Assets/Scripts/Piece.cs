@@ -171,17 +171,23 @@ namespace NBPChess
             }
         }
 
-        public void Capture()
+        public void Capture(bool triggerEvents = true)
         {
             captured = true;
-            pieceCapturedStateChanged(captured);
+            if (pieceCapturedStateChanged != null && triggerEvents)
+            {
+                pieceCapturedStateChanged(captured);
+            }
             moveManager.RemovePiece(this);
         }
 
-        public void RestoreCaptured()
+        public void RestoreCaptured(bool triggerEvents = true)
         {
             captured = false;
-            pieceCapturedStateChanged(captured);
+            if (pieceCapturedStateChanged != null && triggerEvents)
+            {
+                pieceCapturedStateChanged(captured);
+            }
             moveManager.RegisterPiece(this);
         }
 

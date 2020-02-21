@@ -39,6 +39,22 @@ namespace NBPChess
             this.castlePairFrom = castlePairFrom;
             this.castlePairTo = castlePairTo;
         }
+
+        public override string ToString()
+        {
+            if (isCastleMove)
+            {
+                return "Castle move: King to " + toTile;
+            } else
+            {
+                string retStr = activePiece.GetPieceType() + " moves from " + fromTile + " to " + toTile;
+                if(passivePiece != null)
+                {
+                    retStr += " and captures " + passivePiece.GetPieceType();
+                }
+                return retStr;
+            }
+        }
     }
 
     public class MoveManager
@@ -64,7 +80,7 @@ namespace NBPChess
         public void RegisterPiece(Piece piece)
         {
             pieces.Add(piece);
-            ChangeThreatenedSpaces();
+            //ChangeThreatenedSpaces();
         } 
         public void RemovePiece(Piece piece)
         {
@@ -77,52 +93,42 @@ namespace NBPChess
                 blackThreatenedSpaces.Remove(piece);
             }
         }
-
         private void ChangeThreatenedSpaces()
+        {
+            GetThreatenedSpaces(pieces, whiteThreatenedSpaces, blackThreatenedSpaces);
+        }
+        private void GetThreatenedSpaces(List<Piece> pieces, Dictionary<Piece, List<Tile>> whiteThreatened, Dictionary<Piece, List<Tile>> blackThreatened)
         {
             for (int i = 0; i < pieces.Count; i++)
             {
                 if (pieces[i].GetColor() == PieceColor.White)
                 {
-                    if (!whiteThreatenedSpaces.ContainsKey(pieces[i]))
+                    if (!whiteThreatened.ContainsKey(pieces[i]))
                     {
-                        whiteThreatenedSpaces.Add(pieces[i], pieces[i].GetThreathenedTiles(board));
-                    } else
-                    {
-                        whiteThreatenedSpaces[pieces[i]] = pieces[i].GetThreathenedTiles(board);
-                    }
-                } else
-                {
-                    if (!blackThreatenedSpaces.ContainsKey(pieces[i]))
-                    {
-                        blackThreatenedSpaces.Add(pieces[i], pieces[i].GetThreathenedTiles(board));
+                        whiteThreatened.Add(pieces[i], pieces[i].GetThreathenedTiles(board));
                     }
                     else
                     {
-                        blackThreatenedSpaces[pieces[i]] = pieces[i].GetThreathenedTiles(board);
+                        whiteThreatened[pieces[i]] = pieces[i].GetThreathenedTiles(board);
+                    }
+                }
+                else
+                {
+                    if (!blackThreatened.ContainsKey(pieces[i]))
+                    {
+                        blackThreatened.Add(pieces[i], pieces[i].GetThreathenedTiles(board));
+                    }
+                    else
+                    {
+                        blackThreatened[pieces[i]] = pieces[i].GetThreathenedTiles(board);
                     }
                 }
             }
-            /*Dictionary<Piece, List<Tile>> curThreatenedTiles;
-            if (movedPiece.GetColor() == PieceColor.White)
-            {
-                curThreatenedTiles = whiteThreatenedSpaces;
-            } else
-            {
-                curThreatenedTiles = blackThreatenedSpaces;
-            }
-            if (!curThreatenedTiles.ContainsKey(movedPiece))
-            {
-                curThreatenedTiles.Add(movedPiece, movedPiece.GetThreathenedTiles(board));
-            }
-            else
-            {
-                curThreatenedTiles[movedPiece] = movedPiece.GetThreathenedTiles(board);
-            }*/
         }
         public List<ChessMove> AvailableMoves(Piece piece)
         {
-            return piece.AvailableMoves(board);
+            List<ChessMove> moves = FilterKingInCheckMoves(piece.GetColor(), piece.AvailableMoves(board));
+            return moves;
         }
 
         public List<Tile> GetThreatenedSpaces(PieceColor defendingColor)
@@ -143,31 +149,40 @@ namespace NBPChess
             return threatenedTiles;
         }
 
-        public void DoMove(ChessMove move)
+        public void DoMove(ChessMove move, bool simulate = false)
         {
-            moveHistory.Add(move);
-            move.fromTile.piece.SetTile(move.toTile);
+            if (!simulate)
+            {
+                moveHistory.Add(move);
+            }
+            move.activePiece.SetTile(move.toTile, !simulate);
+
             if (move.isCastleMove)
             {
-                move.castlePair.SetTile(move.castlePairTo);
-            } else if (move.passivePiece != null)
+                move.castlePair.SetTile(move.castlePairTo, !simulate);
+            }
+            else if (move.passivePiece != null)
             {
-                move.passivePiece.Capture();
+                move.passivePiece.Capture(!simulate);
             }
             ChangeThreatenedSpaces();
         }
 
-        public void UndoMove(ChessMove move)
+        public void UndoMove(ChessMove move, bool simulate = false)
         {
-            moveHistory.Remove(move);
-            move.activePiece.SetTile(move.fromTile);
+            if (!simulate)
+            {
+                moveHistory.Remove(move);
+            }
+            move.activePiece.SetTile(move.fromTile, !simulate);
             if (move.isCastleMove)
             {
-                move.castlePair.SetTile(move.castlePairFrom);
+                move.castlePair.SetTile(move.castlePairFrom, !simulate);
             }
             else if (move.passivePiece != null)
             {
-                move.passivePiece.RestoreCaptured();
+                move.passivePiece.SetTile(move.toTile, !simulate);
+                move.passivePiece.RestoreCaptured(!simulate);
             }
             ChangeThreatenedSpaces();
         }
@@ -252,6 +267,36 @@ namespace NBPChess
                 castleMoves.Add(kingChessMove);
             }
             return castleMoves;
+        }
+
+        private bool IsKingInCheck(PieceColor color)
+        {
+            List<Tile> threathenedSpaces = GetThreatenedSpaces(color);
+            for (int i = 0; i < threathenedSpaces.Count; i++)
+            {
+                if (threathenedSpaces[i].IsTileOccupied() 
+                    && threathenedSpaces[i].GetPieceColor() == color
+                    && threathenedSpaces[i].piece.GetPieceType() == PieceType.King)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private List<ChessMove> FilterKingInCheckMoves(PieceColor color, List<ChessMove> moves)
+        {
+            List<ChessMove> filteredMoves = new List<ChessMove>();
+            for (int i = 0; i < moves.Count; i++)
+            {
+                DoMove(moves[i], true);
+                if (!IsKingInCheck(color))
+                {
+                    filteredMoves.Add(moves[i]);
+                }
+                UndoMove(moves[i], true);
+            }
+            return filteredMoves;
         }
     }
 }
