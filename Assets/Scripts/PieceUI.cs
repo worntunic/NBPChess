@@ -100,11 +100,18 @@ namespace NBPChess
             if (board.IsPositionOnBoard(eventData.position))
             {
                 Tile newTile = board.GetCurrentlyPointedTile();
-                List<Tile> availableMoves = moveManager.GetAvailableMoves(piece, board);
-                if (availableMoves.Contains(newTile))
+                List<ChessMove> availableMoves = moveManager.AvailableMoves(piece);
+                bool validMove = false;
+                for (int i = 0; i < availableMoves.Count; i++)
                 {
-                    moveManager.DoMove(piece.GetTile(), newTile);
-                } else
+                    if (availableMoves[i].toTile == newTile)
+                    {
+                        moveManager.DoMove(availableMoves[i]);
+                        validMove = true;
+                        break;
+                    }
+                }
+                if (!validMove)
                 {
                     MovePiece(currentTileUI);
                 }
@@ -120,11 +127,11 @@ namespace NBPChess
         {
             board.DeselectAllTiles();
             Tile tile = piece.GetTile();
-            List<Tile> availableMoves = piece.AvailableMoves(board);
+            List<ChessMove> availableMoves = moveManager.AvailableMoves(piece);
             board.SelectTile(tile);
-            foreach(Tile availableTile in availableMoves)
+            foreach(ChessMove move  in availableMoves)
             {
-                board.HighlightTile(availableTile);
+                board.HighlightTile(move.toTile);
             }
             board.SetRayBlockingForAllPieces(false);
         }

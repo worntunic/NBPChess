@@ -11,6 +11,10 @@ namespace NBPChess
         public Piece activePiece;
         public Tile toTile;
         public Piece passivePiece;
+        public bool isCastleMove;
+        public Piece castlePair;
+        public Tile castlePairFrom;
+        public Tile castlePairTo;
 
         public ChessMove(Tile fromTile, Tile toTile)
         {
@@ -18,6 +22,22 @@ namespace NBPChess
             this.toTile = toTile;
             this.activePiece = fromTile.piece;
             this.passivePiece = toTile.piece;
+            isCastleMove = false;
+            castlePair = null;
+            castlePairFrom = null;
+            castlePairTo = null;
+        }
+
+        public ChessMove(Tile fromTile, Tile toTile, Tile castlePairFrom, Tile castlePairTo)
+        {
+            this.fromTile = fromTile;
+            this.toTile = toTile;
+            this.activePiece = fromTile.piece;
+            this.passivePiece = toTile.piece;
+            isCastleMove = true;
+            this.castlePair = castlePairFrom.piece;
+            this.castlePairFrom = castlePairFrom;
+            this.castlePairTo = castlePairTo;
         }
     }
 
@@ -100,7 +120,7 @@ namespace NBPChess
                 curThreatenedTiles[movedPiece] = movedPiece.GetThreathenedTiles(board);
             }*/
         }
-        public List<Tile> GetAvailableMoves(Piece piece, Board board)
+        public List<ChessMove> AvailableMoves(Piece piece)
         {
             return piece.AvailableMoves(board);
         }
@@ -123,14 +143,16 @@ namespace NBPChess
             return threatenedTiles;
         }
 
-        public void DoMove(Tile fromTile, Tile toTile)
+        public void DoMove(ChessMove move)
         {
-            ChessMove newMove = new ChessMove(fromTile, toTile);
-            moveHistory.Add(newMove);
-            fromTile.piece.SetTile(toTile);
-            if (newMove.passivePiece != null)
+            moveHistory.Add(move);
+            move.fromTile.piece.SetTile(move.toTile);
+            if (move.isCastleMove)
             {
-                newMove.passivePiece.Capture();
+                move.castlePair.SetTile(move.castlePairTo);
+            } else if (move.passivePiece != null)
+            {
+                move.passivePiece.Capture();
             }
             ChangeThreatenedSpaces();
         }
@@ -139,12 +161,97 @@ namespace NBPChess
         {
             moveHistory.Remove(move);
             move.activePiece.SetTile(move.fromTile);
-            if (move.passivePiece != null)
+            if (move.isCastleMove)
+            {
+                move.castlePair.SetTile(move.castlePairFrom);
+            }
+            else if (move.passivePiece != null)
             {
                 move.passivePiece.RestoreCaptured();
             }
             ChangeThreatenedSpaces();
         }
+
+        public List<ChessMove> GetCastlingMoves(PieceColor color, out bool queenSideAvailable, out bool kingSideAvailable)
+        {
+            Tile queenSideRookTile, kingSideRookTile, kingTile;
+            Tile kingQueenSideDst, kingKingSideDst, rookQueenSideDst, rookKingSideDst;
+            queenSideAvailable = true;
+            kingSideAvailable = true;
+            List<Tile> threatenedSpaces = GetThreatenedSpaces(color);
+            List<ChessMove> castleMoves = new List<ChessMove>();
+
+            if (color == PieceColor.White)
+            {
+                kingTile = board.GetTile(Row._1, Column.E);
+
+            } else
+            {
+                kingTile = board.GetTile(Row._8, Column.E);
+            }
+            kingQueenSideDst = board.GetTile(kingTile.row, Column.C);
+            rookQueenSideDst = board.GetTile(kingTile.row, Column.D);
+            kingKingSideDst = board.GetTile(kingTile.row, Column.G);
+            rookKingSideDst = board.GetTile(kingTile.row, Column.F);
+            queenSideRookTile = board.GetTile(kingTile.row, Column.A);
+            kingSideRookTile = board.GetTile(kingTile.row, Column.H);
+
+            for (int i = 1; i < 7; i++)
+            {
+                Tile currentTile = board.GetTile((int)kingTile.row, i);
+                if (((i != 4) && currentTile.IsTileOccupied())
+                    || threatenedSpaces.Contains(currentTile)) { 
+                    if (i == 4)
+                    {
+                        queenSideAvailable = false;
+                        kingSideAvailable = false;
+                        return castleMoves;
+                    } else if (i < 4)
+                    {
+                        queenSideAvailable = false;                        
+                    } else
+                    {
+                        kingSideAvailable = false;
+                    }
+                }
+            }
+
+            for (int i = 0; i < moveHistory.Count && (queenSideAvailable || kingSideAvailable); i++)
+            {
+                Piece activePiece = moveHistory[i].activePiece;
+                if (activePiece.GetColor() == color)
+                {
+                    //Were they moved
+                    if (activePiece.GetPieceType() == PieceType.King)
+                    {
+                        queenSideAvailable = false;
+                        kingSideAvailable = false;
+                    } else if (activePiece.GetPieceType() == PieceType.Rook && !activePiece.createdByPromotion)
+                    {
+                        if (activePiece.initialTile == queenSideRookTile)
+                        {
+                            queenSideAvailable = false;
+                        } else if (activePiece.initialTile == kingSideRookTile)
+                        {
+                            kingSideAvailable = false;
+                        }
+                    }
+                }
+            }
+            if (kingSideAvailable)
+            {
+
+
+                ChessMove kingChessMove = new ChessMove(kingTile, kingKingSideDst, kingSideRookTile, rookKingSideDst);
+                castleMoves.Add(kingChessMove);
+            }
+            if (queenSideAvailable)
+            {
+
+                ChessMove kingChessMove = new ChessMove(kingTile, kingQueenSideDst, queenSideRookTile, rookQueenSideDst);
+                castleMoves.Add(kingChessMove);
+            }
+            return castleMoves;
+        }
     }
 }
-

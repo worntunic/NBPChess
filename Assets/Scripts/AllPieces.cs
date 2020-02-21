@@ -12,21 +12,21 @@ namespace NBPChess
         {
             return PieceType.Pawn;
         }
-        public override List<Tile> AvailableMoves(Board board)
+        public override List<ChessMove> AvailableMoves(Board board)
         {
-            List<Tile> moves = new List<Tile>();
+            List<ChessMove> moves = new List<ChessMove>();
             //Front movement
             Tile nextTile;
             if (IsRelTileEmpty(1, 0, board, out nextTile))
             {
-                moves.Add(nextTile);
+                moves.Add(CreateMoveTo(nextTile));
 
                 if (currentTile.row == GetRowColorRelative(1))
                 {
                     Tile twoTilesAhead;
                     if (IsRelTileEmpty(2, 0, board, out twoTilesAhead))
                     {
-                        moves.Add(twoTilesAhead);
+                        moves.Add(CreateMoveTo(twoTilesAhead));
                     }
                 }
             }
@@ -34,13 +34,13 @@ namespace NBPChess
             Tile leftAttackTile;
             if (IsRelTileEnemy(1, -1, board, out leftAttackTile))
             {
-                moves.Add(leftAttackTile);
+                moves.Add(CreateMoveTo(leftAttackTile));
             }
             //Right Attack
             Tile rightAttackTile;
             if (IsRelTileEnemy(1, 1, board, out rightAttackTile))
             {
-                moves.Add(rightAttackTile);
+                moves.Add(CreateMoveTo(rightAttackTile));
             }
             //TODO: ADD PROMOTION LOGIC
             return moves;
@@ -75,9 +75,9 @@ namespace NBPChess
             return PieceType.Rook;
         }
 
-        public override List<Tile> AvailableMoves(Board board)
+        public override List<ChessMove> AvailableMoves(Board board)
         {
-            List<Tile> moves = new List<Tile>();
+            List<ChessMove> moves = new List<ChessMove>();
 
             for (int i = 0; i < 4; i++)
             {
@@ -86,7 +86,7 @@ namespace NBPChess
                 Tile newTile;
                 while (IsRelTileEmptyOrEnemy(rowOffset, colOffset, board, out newTile))
                 {
-                    moves.Add(newTile);
+                    moves.Add(CreateMoveTo(newTile));
                     if (newTile.IsTileOccupied())
                     {
                         break;
@@ -130,9 +130,9 @@ namespace NBPChess
         {
             return PieceType.Bishop;
         }
-        public override List<Tile> AvailableMoves(Board board)
+        public override List<ChessMove> AvailableMoves(Board board)
         {
-            List<Tile> moves = new List<Tile>();
+            List<ChessMove> moves = new List<ChessMove>();
 
             for (int i = 0; i < 4; i++)
             {
@@ -141,7 +141,7 @@ namespace NBPChess
                 Tile newTile;
                 while (IsRelTileEmptyOrEnemy(rowOffset, colOffset, board, out newTile))
                 {
-                    moves.Add(newTile);
+                    moves.Add(CreateMoveTo(newTile));
                     if (newTile.IsTileOccupied())
                     {
                         break;
@@ -192,9 +192,9 @@ namespace NBPChess
         {
             return PieceType.Knight;
         }
-        public override List<Tile> AvailableMoves(Board board)
+        public override List<ChessMove> AvailableMoves(Board board)
         {
-            List<Tile> moves = new List<Tile>();
+            List<ChessMove> moves = new List<ChessMove>();
 
 
             for (int i = 0; i < 8; i++)
@@ -204,7 +204,7 @@ namespace NBPChess
                 Tile newTile;
                 if (IsRelTileEmptyOrEnemy(rowOffset, colOffset, board, out newTile))
                 {
-                    moves.Add(newTile);
+                    moves.Add(CreateMoveTo(newTile));
                 }
             }
             return moves;
@@ -242,9 +242,9 @@ namespace NBPChess
         {
             return PieceType.Queen;
         }
-        public override List<Tile> AvailableMoves(Board board)
+        public override List<ChessMove> AvailableMoves(Board board)
         {
-            List<Tile> moves = new List<Tile>();
+            List<ChessMove> moves = new List<ChessMove>();
 
             for (int i = 0; i < 8; i++)
             {
@@ -253,7 +253,7 @@ namespace NBPChess
                 Tile newTile;
                 while (IsRelTileEmptyOrEnemy(rowOffset, colOffset, board, out newTile))
                 {
-                    moves.Add(newTile);
+                    moves.Add(CreateMoveTo(newTile));
                     if (newTile.IsTileOccupied())
                     {
                         break;
@@ -303,20 +303,28 @@ namespace NBPChess
         {
             return PieceType.King;
         }
-        public override List<Tile> AvailableMoves(Board board)
+        public override List<ChessMove> AvailableMoves(Board board)
         {
-            List<Tile> moves = new List<Tile>();
+            List<ChessMove> moves = new List<ChessMove>();
 
             for (int i = 0; i < 8; i++)
             {
                 int rowOffset = directions[2 * i];
                 int colOffset = directions[2 * i + 1];
                 Tile newTile;
-                //TODO: ADD CASTLING LOGIC
+                
                 List<Tile> threathenedSpaces = moveManager.GetThreatenedSpaces(pieceColor);
                 if (IsRelTileEmptyOrEnemy(rowOffset, colOffset, board, out newTile) && !threathenedSpaces.Contains(newTile))
                 {
-                    moves.Add(newTile);
+                    moves.Add(CreateMoveTo(newTile));
+                }
+
+                //Castling
+                bool canQueenSideCastle, canKingSideCastle;
+                List<ChessMove> castlingMoves = moveManager.GetCastlingMoves(pieceColor, out canQueenSideCastle, out canKingSideCastle);
+                if (canQueenSideCastle || canKingSideCastle)
+                {
+                    moves.AddRange(castlingMoves);
                 }
             }
 

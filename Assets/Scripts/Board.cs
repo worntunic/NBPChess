@@ -119,6 +119,7 @@ namespace NBPChess
         {
             activePieces.Remove(piece);
         }
+
     }
 }
 

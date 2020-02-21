@@ -59,14 +59,14 @@ namespace NBPChess
             } else
             {
                 startingRow = Row._8;
-                startingColumn = Column.H;
+                startingColumn = Column.A;
                 indexIncrement = -1;
             }
             int currentPieceIndex = 0;
             for (int rowOffset = 0; Mathf.Abs(rowOffset) < 2; rowOffset += indexIncrement)
             {
                 Row currentRow = startingRow + rowOffset;
-                for (int colOffset = 0; Mathf.Abs(colOffset) < 8; colOffset += indexIncrement)
+                for (int colOffset = 0; colOffset < 8; colOffset++)
                 {
                     Column currentCol = startingColumn + colOffset;
                     PieceAndPrefab currentPiece = GetPiecePrefabByType(initialState[currentPieceIndex]);

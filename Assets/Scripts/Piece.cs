@@ -44,14 +44,18 @@ namespace NBPChess
         public event PieceCaptureStateChanged pieceCapturedStateChanged;
         public abstract PieceType GetPieceType();
         protected PieceColor pieceColor;
+        public Tile initialTile { get; private set; }
         protected Tile currentTile;
         protected bool captured = false;
         protected MoveManager moveManager;
+        public bool createdByPromotion { get; }
 
         public Piece(PieceColor color, Tile tile, MoveManager moveManager)
         {
+            createdByPromotion = false;
             this.pieceColor = color;
             this.moveManager = moveManager;
+            initialTile = tile;
             SetTile(tile);
         }
         public Tile GetTile()
@@ -74,11 +78,10 @@ namespace NBPChess
             }
         }
 
-        public abstract List<Tile> AvailableMoves(Board board);
-        public virtual List<Tile> GetThreathenedTiles(Board board)
-        {
-            return AvailableMoves(board);
-        }
+
+
+        public abstract List<ChessMove> AvailableMoves(Board board);
+        public abstract List<Tile> GetThreathenedTiles(Board board);
         public PieceColor GetColor()
         {
             return pieceColor;
@@ -180,6 +183,11 @@ namespace NBPChess
             captured = false;
             pieceCapturedStateChanged(captured);
             moveManager.RegisterPiece(this);
+        }
+
+        protected ChessMove CreateMoveTo(Tile toTile)
+        {
+            return new ChessMove(currentTile, toTile);
         }
     }
 }
