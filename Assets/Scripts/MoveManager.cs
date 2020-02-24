@@ -15,6 +15,7 @@ namespace NBPChess
         public Piece castlePair;
         public Tile castlePairFrom;
         public Tile castlePairTo;
+        public Tile passivePieceFromTile;
 
         public ChessMove(Tile fromTile, Tile toTile)
         {
@@ -22,6 +23,20 @@ namespace NBPChess
             this.toTile = toTile;
             this.activePiece = fromTile.piece;
             this.passivePiece = toTile.piece;
+            passivePieceFromTile = toTile;
+            isCastleMove = false;
+            castlePair = null;
+            castlePairFrom = null;
+            castlePairTo = null;
+        }
+
+        public ChessMove(Tile fromTile, Tile toTile, Piece passivePiece)
+        {
+            this.fromTile = fromTile;
+            this.toTile = toTile;
+            this.activePiece = fromTile.piece;
+            this.passivePiece = passivePiece;
+            this.passivePieceFromTile = passivePiece.GetTile();
             isCastleMove = false;
             castlePair = null;
             castlePairFrom = null;
@@ -34,6 +49,7 @@ namespace NBPChess
             this.toTile = toTile;
             this.activePiece = fromTile.piece;
             this.passivePiece = toTile.piece;
+            this.passivePieceFromTile = toTile;
             isCastleMove = true;
             this.castlePair = castlePairFrom.piece;
             this.castlePairFrom = castlePairFrom;
@@ -202,7 +218,7 @@ namespace NBPChess
             }
             else if (move.passivePiece != null)
             {
-                move.passivePiece.SetTile(move.toTile, !simulate);
+                move.passivePiece.SetTile(move.passivePieceFromTile, !simulate);
                 move.passivePiece.RestoreCaptured(!simulate);
             }
             if (!simulate)
@@ -339,6 +355,11 @@ namespace NBPChess
                     moveCountBlack += AvailableMoves(pieces[i]).Count;
                 }
             }
+        }
+
+        public ChessMove GetLastMove()
+        {
+            return moveHistory[moveHistory.Count - 1];
         }
     }
 }

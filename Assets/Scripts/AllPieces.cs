@@ -42,6 +42,21 @@ namespace NBPChess
             {
                 moves.Add(CreateMoveTo(rightAttackTile));
             }
+            //En Passant
+            
+            if (currentTile.row == GetRowColorRelative(4))
+            {
+                ChessMove lastMove = moveManager.GetLastMove();
+                if (lastMove.activePiece.GetPieceType() == PieceType.Pawn
+                    && lastMove.fromTile.row == GetRowColorRelative(6)
+                    && lastMove.toTile.row == GetRowColorRelative(4)
+                    && Mathf.Abs((int)lastMove.fromTile.col - (int)currentTile.col) == 1 )
+                {
+                    Tile enPassantTile = board.GetTile(GetRowColorRelative(5), lastMove.fromTile.col);
+                    ChessMove enPassantMove = new ChessMove(currentTile, enPassantTile, lastMove.activePiece);
+                    moves.Add(enPassantMove);
+                }
+            }
             //TODO: ADD PROMOTION LOGIC
             return moves;
         }
