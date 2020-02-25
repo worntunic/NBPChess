@@ -36,7 +36,7 @@ namespace NBPChess
             piecesState = new List<Piece>();
             piecesState.AddRange(CreatePieces(PieceColor.White));
             piecesState.AddRange(CreatePieces(PieceColor.Black));
-            moveManager.RegisterAllPieces(piecesState);
+            //moveManager.RegisterAllPieces(piecesState);
 
         }
 
@@ -47,7 +47,7 @@ namespace NBPChess
 
         private List<Piece> CreatePieces(PieceColor color)
         {
-            List<Piece> pieces = new List<Piece>();
+            List<Piece> initialPieces = new List<Piece>();
             Row startingRow;
             Column startingColumn;
             int indexIncrement;
@@ -71,13 +71,17 @@ namespace NBPChess
                     Column currentCol = startingColumn + colOffset;
                     PieceAndPrefab currentPiece = GetPiecePrefabByType(initialState[currentPieceIndex]);
                     Piece piece = CreatePiece(color, currentRow, currentCol, currentPiece);
-                    pieces.Add(piece);
+                    initialPieces.Add(piece);
                     currentPieceIndex++;
                 }
             }
-            return pieces;
+            return initialPieces;
         }
-
+        public Piece CreatePiece(PieceColor color, Row row, Column col, PieceType type)
+        {
+            PieceAndPrefab prefab = GetPiecePrefabByType(type);
+            return CreatePiece(color, row, col, prefab);
+        }
         private Piece CreatePiece(PieceColor color, Row row, Column col, PieceAndPrefab pieceAndPrefab)
         {
 

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using NBPChess.UI;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,6 +14,7 @@ namespace NBPChess
     {
         public Board board;
         public PieceManager pieceManager;
+        public PawnPromotionUI pawnPromotionUI;
         private MoveManager moveManager;
         public ChessArtSet[] artSets;
         public int newArtSet;
@@ -34,6 +36,7 @@ namespace NBPChess
             gameState = GameState.WhiteMove;
             board.Initalize(artSets[currentArtSet]);
             moveManager = new MoveManager(this, board);
+            pawnPromotionUI.Initialize(artSets[currentArtSet], moveManager);
             pieceManager.Initalize(board, artSets[currentArtSet], moveManager);
         }
 
@@ -44,6 +47,7 @@ namespace NBPChess
                 currentArtSet = newArtSet;
                 board.ChangeArtSet(artSets[currentArtSet]);
                 pieceManager.ChangeArtSet(artSets[currentArtSet]);
+                pawnPromotionUI.ChangeArtSet(artSets[currentArtSet]);
             }
         }
 
@@ -85,6 +89,11 @@ namespace NBPChess
         public GameState GetGameState()
         {
             return gameState;
+        }
+
+        public Piece CreateNewPiece(PieceType type, PieceColor color, Row row, Column col)
+        {
+            return pieceManager.CreatePiece(color, row, col, type);
         }
     }
 }

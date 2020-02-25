@@ -66,6 +66,13 @@ namespace NBPChess
         {
             this.piece = piece;
         }
+        public void RemovePiece(Piece piece)
+        {
+            if (this.piece == piece)
+            {
+                this.piece = null;
+            }
+        }
         public void RemoveCurrentPiece()
         {
             this.piece = null;

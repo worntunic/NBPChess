@@ -6,6 +6,7 @@ namespace NBPChess
 {
     public class Pawn : Piece
     {
+        private Piece promotedPiece;
         public Pawn(PieceColor color, Tile tile, MoveManager moveManager) : base(color, tile, moveManager) { }
 
         public override PieceType GetPieceType()
@@ -19,7 +20,12 @@ namespace NBPChess
             Tile nextTile;
             if (IsRelTileEmpty(1, 0, board, out nextTile))
             {
-                moves.Add(CreateMoveTo(nextTile));
+                ChessMove move = CreateMoveTo(nextTile);
+                if (nextTile.row == GetRowColorRelative(7))
+                {
+                    move.isPromotionMove = true;
+                }
+                moves.Add(move);
 
                 if (currentTile.row == GetRowColorRelative(1))
                 {
@@ -34,13 +40,23 @@ namespace NBPChess
             Tile leftAttackTile;
             if (IsRelTileEnemy(1, -1, board, out leftAttackTile))
             {
-                moves.Add(CreateMoveTo(leftAttackTile));
+                ChessMove leftAttack = CreateMoveTo(leftAttackTile);
+                if (GetRowColorRelative(7) == leftAttackTile.row)
+                {
+                    leftAttack.isPromotionMove = true;
+                }
+                moves.Add(leftAttack);
             }
             //Right Attack
             Tile rightAttackTile;
             if (IsRelTileEnemy(1, 1, board, out rightAttackTile))
             {
-                moves.Add(CreateMoveTo(rightAttackTile));
+                ChessMove rightAttack = CreateMoveTo(rightAttackTile);
+                if (GetRowColorRelative(7) == rightAttackTile.row)
+                {
+                    rightAttack.isPromotionMove = true;
+                }
+                moves.Add(rightAttack);
             }
             //En Passant
             
@@ -57,7 +73,7 @@ namespace NBPChess
                     moves.Add(enPassantMove);
                 }
             }
-            //TODO: ADD PROMOTION LOGIC
+            
             return moves;
         }
         public override List<Tile> GetThreathenedTiles(Board board)

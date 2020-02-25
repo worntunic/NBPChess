@@ -42,21 +42,23 @@ namespace NBPChess
         public event PieceMoved pieceMoved;
         public delegate void PieceCaptureStateChanged(bool captured);
         public event PieceCaptureStateChanged pieceCapturedStateChanged;
+        public delegate void PieceEnabledStateChanged(bool enabled);
+        public event PieceEnabledStateChanged pieceEnabledStateChanged;
         public abstract PieceType GetPieceType();
         protected PieceColor pieceColor;
         public Tile initialTile { get; private set; }
         protected Tile currentTile;
         protected bool captured = false;
         protected MoveManager moveManager;
-        public bool createdByPromotion { get; }
+        protected bool pieceEnabled = true;
 
         public Piece(PieceColor color, Tile tile, MoveManager moveManager)
         {
-            createdByPromotion = false;
             this.pieceColor = color;
             this.moveManager = moveManager;
             initialTile = tile;
             SetTile(tile);
+            moveManager.RegisterPiece(this);
         }
         public Tile GetTile()
         {
@@ -174,6 +176,7 @@ namespace NBPChess
         public void Capture(bool triggerEvents = true)
         {
             captured = true;
+            currentTile.RemovePiece(this);
             if (pieceCapturedStateChanged != null && triggerEvents)
             {
                 pieceCapturedStateChanged(captured);
@@ -184,6 +187,7 @@ namespace NBPChess
         public void RestoreCaptured(bool triggerEvents = true)
         {
             captured = false;
+            currentTile.SetCurrentPiece(this);
             if (pieceCapturedStateChanged != null && triggerEvents)
             {
                 pieceCapturedStateChanged(captured);
@@ -194,6 +198,28 @@ namespace NBPChess
         protected ChessMove CreateMoveTo(Tile toTile)
         {
             return new ChessMove(currentTile, toTile);
+        }
+
+        public void DisablePiece()
+        {
+            pieceEnabled = false;
+            currentTile.RemovePiece(this);
+            if (pieceEnabledStateChanged != null)
+            {
+                pieceEnabledStateChanged(pieceEnabled);
+            }
+            moveManager.RemovePiece(this);
+        }
+
+        public void EnablePiece()
+        {
+            pieceEnabled = true;
+            currentTile.SetCurrentPiece(this);
+            if (pieceEnabledStateChanged != null)
+            {
+                pieceEnabledStateChanged(pieceEnabled);
+            }
+            moveManager.RegisterPiece(this);
         }
     }
 }

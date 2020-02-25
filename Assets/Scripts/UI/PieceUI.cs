@@ -43,11 +43,17 @@ namespace NBPChess
             MovePiece(tile);
             this.piece.pieceMoved += OnPieceMoved;
             this.piece.pieceCapturedStateChanged += OnPieceCaptured;
+            this.piece.pieceEnabledStateChanged += OnPieceEnabledStateChanged;
         }
 
         private void OnPieceCaptured(bool captured)
         {
             this.gameObject.SetActive(!captured);
+        }
+
+        private void OnPieceEnabledStateChanged(bool enabled)
+        {
+            this.gameObject.SetActive(enabled);
         }
 
         private void OnPieceMoved(Tile oldTile, Tile newTile)
