@@ -12,6 +12,7 @@ namespace NBPChess
         public Tile toTile;
         public Piece passivePiece;
         public bool isCastleMove;
+        public bool isQueenSideCastle;
         public Piece castlePair;
         public Tile castlePairFrom;
         public Tile castlePairTo;
@@ -20,6 +21,7 @@ namespace NBPChess
         public bool isCompletePromotionMove;
         public PieceType promotionType;
         public Piece promotedPiece;
+        public bool checksOpponent;
 
         public ChessMove(Tile fromTile, Tile toTile)
         {
@@ -29,6 +31,7 @@ namespace NBPChess
             this.passivePiece = toTile.piece;
             passivePieceFromTile = toTile;
             isCastleMove = false;
+            isQueenSideCastle = false;
             castlePair = null;
             castlePairFrom = null;
             castlePairTo = null;
@@ -36,6 +39,7 @@ namespace NBPChess
             isCompletePromotionMove = false;
             promotionType = PieceType.Pawn;
             promotedPiece = null;
+            checksOpponent = false;
         }
 
         public ChessMove(Tile fromTile, Tile toTile, Piece passivePiece, bool isPromotionMove = false)
@@ -46,6 +50,7 @@ namespace NBPChess
             this.passivePiece = passivePiece;
             this.passivePieceFromTile = passivePiece.GetTile();
             isCastleMove = false;
+            isQueenSideCastle = false;
             castlePair = null;
             castlePairFrom = null;
             castlePairTo = null;
@@ -53,9 +58,10 @@ namespace NBPChess
             isCompletePromotionMove = false;
             promotionType = PieceType.Pawn;
             promotedPiece = null;
+            checksOpponent = false;
         }
 
-        public ChessMove(Tile fromTile, Tile toTile, Tile castlePairFrom, Tile castlePairTo)
+        public ChessMove(Tile fromTile, Tile toTile, Tile castlePairFrom, Tile castlePairTo, bool isQueenSideCastle)
         {
             this.fromTile = fromTile;
             this.toTile = toTile;
@@ -63,6 +69,7 @@ namespace NBPChess
             this.passivePiece = toTile.piece;
             this.passivePieceFromTile = toTile;
             isCastleMove = true;
+            this.isQueenSideCastle = isQueenSideCastle;
             this.castlePair = castlePairFrom.piece;
             this.castlePairFrom = castlePairFrom;
             this.castlePairTo = castlePairTo;
@@ -70,6 +77,7 @@ namespace NBPChess
             isCompletePromotionMove = false;
             promotionType = PieceType.Pawn;
             promotedPiece = null;
+            checksOpponent = false;
         }
         public ChessMove(Tile fromTile, Tile toTile, bool promotionMove)
         {
@@ -79,6 +87,7 @@ namespace NBPChess
             this.passivePiece = toTile.piece;
             passivePieceFromTile = toTile;
             isCastleMove = false;
+            isQueenSideCastle = false;
             castlePair = null;
             castlePairFrom = null;
             castlePairTo = null;
@@ -86,6 +95,7 @@ namespace NBPChess
             isCompletePromotionMove = false;
             promotionType = PieceType.Pawn;
             promotedPiece = null;
+            checksOpponent = false;
         }
         public override string ToString()
         {
@@ -115,8 +125,12 @@ namespace NBPChess
         private Dictionary<Piece, List<Tile>> blackThreatenedSpaces = new Dictionary<Piece, List<Tile>>();
         public delegate void PawnPromotionStarted(PieceColor color);
         public event PawnPromotionStarted onPawnPromotionStarted;
+        public delegate void OnMovePlayed(ChessMove move);
+        public event OnMovePlayed beforeMovePlayed;
         private bool waitingForPawnPromotion = false;
         private ChessMove incompletePromotionMove;
+        private bool isCurrentStateActive = true;
+        private List<ChessMove> allMoveHistory = new List<ChessMove>();
 
         public bool CanPieceMove(PieceColor color)
         {
@@ -153,6 +167,7 @@ namespace NBPChess
             {
                 blackThreatenedSpaces.Remove(piece);
             }
+            //ChangeThreatenedSpaces();
         }
         private void ChangeThreatenedSpaces()
         {
@@ -192,6 +207,21 @@ namespace NBPChess
             return moves;
         }
 
+        public List<ChessMove> AvailableMovesForSamePieceExcluded(Piece excludingPiece)
+        {
+            PieceType type = excludingPiece.GetPieceType();
+            PieceColor color = excludingPiece.GetColor();
+            List<ChessMove> allMoves = new List<ChessMove>();
+            for (int i = 0; i < pieces.Count; i++)
+            {
+                if (pieces[i].GetPieceType() == type && pieces[i].GetColor() == color && pieces[i] != excludingPiece)
+                {
+                    allMoves.AddRange(AvailableMoves(pieces[i]));
+                }
+            }
+            return allMoves;
+        }
+
         public List<Tile> GetThreatenedSpaces(PieceColor defendingColor)
         {
             Dictionary<Piece, List<Tile>> curThreathened;
@@ -210,18 +240,22 @@ namespace NBPChess
             return threatenedTiles;
         }
 
-        public void DoMove(ChessMove move, bool simulate = false)
+        public ChessMove DoMove(ChessMove move, bool simulate = false)
         {
             if (!simulate && !CanPieceMove(move.activePiece.GetColor()))
             {
-                return;
+                return move;
             }
-            bool moveCanBeMade = true;
             if (!simulate)
             {
-                if (move.isPromotionMove)
+                move.checksOpponent = IsOpponentKingInCheckSimulate(move.activePiece.GetColor(), move);
+            }
+            bool moveCanBeMade = true;
+            if (move.isPromotionMove)
+            {
+                if (!move.isCompletePromotionMove)
                 {
-                    if (!move.isCompletePromotionMove)
+                    if (!simulate)
                     {
                         waitingForPawnPromotion = true;
                         incompletePromotionMove = move;
@@ -230,12 +264,12 @@ namespace NBPChess
                         {
                             onPawnPromotionStarted(move.activePiece.GetColor());
                         }
-                    } else
-                    {
-                        move.promotedPiece = gameManager.CreateNewPiece(move.promotionType, move.activePiece.GetColor(), move.toTile.row, move.toTile.col);
-                        move.promotedPiece.SetTile(move.toTile, !simulate);
-                        move.activePiece.DisablePiece();
                     }
+                } else
+                {
+                    move.promotedPiece = gameManager.CreateNewPiece(move.promotionType, move.activePiece.GetColor(), move.toTile.row, move.toTile.col);
+                    move.activePiece.DisablePiece();
+                    move.promotedPiece.SetTile(move.toTile, !simulate);
                 }
             }
             if (moveCanBeMade)
@@ -243,6 +277,11 @@ namespace NBPChess
                 if (!simulate)
                 {
                     moveHistory.Add(move);
+                    allMoveHistory.Add(move);
+                    if (beforeMovePlayed != null)
+                    {
+                        beforeMovePlayed(move);
+                    }
                 }
                 if (!move.isPromotionMove)
                 {
@@ -262,7 +301,9 @@ namespace NBPChess
                     gameManager.ChangeGameState();
                 }
                 ChangeThreatenedSpaces();
+
             }
+            return move;
         }
 
         public void UndoMove(ChessMove move, bool simulate = false)
@@ -271,7 +312,7 @@ namespace NBPChess
             {
                 return;
             }
-            if (!simulate && move.isPromotionMove)
+            if (move.isPromotionMove && move.isCompletePromotionMove)
             {
                 move.activePiece.EnablePiece();
                 move.promotedPiece.DisablePiece();
@@ -365,15 +406,13 @@ namespace NBPChess
             }
             if (kingSideAvailable)
             {
-
-
-                ChessMove kingChessMove = new ChessMove(kingTile, kingKingSideDst, kingSideRookTile, rookKingSideDst);
+                ChessMove kingChessMove = new ChessMove(kingTile, kingKingSideDst, kingSideRookTile, rookKingSideDst, false);
                 castleMoves.Add(kingChessMove);
             }
             if (queenSideAvailable)
             {
 
-                ChessMove kingChessMove = new ChessMove(kingTile, kingQueenSideDst, queenSideRookTile, rookQueenSideDst);
+                ChessMove kingChessMove = new ChessMove(kingTile, kingQueenSideDst, queenSideRookTile, rookQueenSideDst, true);
                 castleMoves.Add(kingChessMove);
             }
             return castleMoves;
@@ -394,12 +433,22 @@ namespace NBPChess
             return false;
         }
 
+        private bool IsOpponentKingInCheckSimulate(PieceColor ourColor, ChessMove move)
+        {
+            PieceColor opponentColor = (ourColor == PieceColor.White) ? PieceColor.Black : PieceColor.White;
+            move = DoMove(move, true);
+            bool kingInCheck = IsKingInCheck(opponentColor);
+            UndoMove(move, true);
+            return kingInCheck;
+
+        }
+
         private List<ChessMove> FilterKingInCheckMoves(PieceColor color, List<ChessMove> moves)
         {
             List<ChessMove> filteredMoves = new List<ChessMove>();
             for (int i = 0; i < moves.Count; i++)
             {
-                DoMove(moves[i], true);
+                moves[i] = DoMove(moves[i], true);
                 if (!IsKingInCheck(color))
                 {
                     filteredMoves.Add(moves[i]);
@@ -440,6 +489,16 @@ namespace NBPChess
                 incompletePromotionMove.promotionType = type;
                 DoMove(incompletePromotionMove);
             }
+        }
+
+        public List<ChessMove> GetAllMoves()
+        {
+            return allMoveHistory;
+        }
+
+        public int GetNumberOfMoves()
+        {
+            return moveHistory.Count;
         }
     }
 }

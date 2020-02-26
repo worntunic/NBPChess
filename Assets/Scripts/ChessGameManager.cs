@@ -15,6 +15,7 @@ namespace NBPChess
         public Board board;
         public PieceManager pieceManager;
         public PawnPromotionUI pawnPromotionUI;
+        public MoveHistoryUI moveHistoryUI;
         private MoveManager moveManager;
         public ChessArtSet[] artSets;
         public int newArtSet;
@@ -38,6 +39,7 @@ namespace NBPChess
             moveManager = new MoveManager(this, board);
             pawnPromotionUI.Initialize(artSets[currentArtSet], moveManager);
             pieceManager.Initalize(board, artSets[currentArtSet], moveManager);
+            moveHistoryUI.Initialize(moveManager);
         }
 
         public void ChangeArt()
