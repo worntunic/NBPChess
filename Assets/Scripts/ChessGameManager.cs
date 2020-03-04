@@ -16,6 +16,7 @@ namespace NBPChess
         public PieceManager pieceManager;
         public PawnPromotionUI pawnPromotionUI;
         public MoveHistoryUI moveHistoryUI;
+        public EndGameController endGameController;
         private MoveManager moveManager;
         public ChessArtSet[] artSets;
         public int newArtSet;
@@ -80,12 +81,12 @@ namespace NBPChess
 
         private void TieOccurred()
         {
-            Debug.Log("Tie!");
+            endGameController.OpenTieScreen();
         }
 
         private void PlayerWon(PieceColor winnerColor)
         {
-            Debug.Log(winnerColor + " won!");
+            endGameController.OpenVictoryScreen(winnerColor);
         }
 
         public GameState GetGameState()

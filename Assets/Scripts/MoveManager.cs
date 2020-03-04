@@ -129,7 +129,7 @@ namespace NBPChess
         public event OnMovePlayed beforeMovePlayed;
         private bool waitingForPawnPromotion = false;
         private ChessMove incompletePromotionMove;
-        private bool isCurrentStateActive = true;
+        //private bool isCurrentStateActive = true;
         private List<ChessMove> allMoveHistory = new List<ChessMove>();
 
         public bool CanPieceMove(PieceColor color)
