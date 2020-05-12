@@ -114,7 +114,7 @@ namespace NBPChess
             if (board.IsPositionOnBoard(eventData.position))
             {
                 Tile newTile = board.GetCurrentlyPointedTile();
-                List<ChessMove> availableMoves = moveManager.AvailableMoves(piece);
+                List<ChessMove> availableMoves = moveManager.AvailableMovesForPiece(piece);
                 bool validMove = false;
                 for (int i = 0; i < availableMoves.Count; i++)
                 {
@@ -145,7 +145,7 @@ namespace NBPChess
             }
             board.DeselectAllTiles();
             Tile tile = piece.GetTile();
-            List<ChessMove> availableMoves = moveManager.AvailableMoves(piece);
+            List<ChessMove> availableMoves = moveManager.AvailableMovesForPiece(piece);
             board.SelectTile(tile);
             foreach(ChessMove move  in availableMoves)
             {

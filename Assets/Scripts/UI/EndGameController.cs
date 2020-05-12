@@ -63,7 +63,6 @@ namespace NBPChess.UI
 
             return new Color(r, g, b);
         }
-
     }
 }
 

@@ -22,7 +22,7 @@ namespace NBPChess.UI
 
         private void OnMovePlayed(ChessMove move)
         {
-            string moveString = AlgebraicNotation.ParseMove(move, moveManager);
+            string moveString = AlgebraicNotation.ToAlgebraic(move, moveManager);
             int numberOfMoves = moveManager.GetNumberOfMoves();
             /*for(int i = 0; i < entries.Count; i++)
             {

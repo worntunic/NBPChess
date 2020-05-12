@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -7,6 +8,13 @@ namespace NBPChess
 {
     public static class AlgebraicNotation
     {
+        private const string queenSideCastle = "0-0-0";
+        private const string kingSideCastle = "0-0";
+        private const char oppKingInCheck = '+';
+        private const char capturedPiece = 'x';
+        private const char promotion = '=';
+        private const string enPassant = "e.p.";
+
         private static Dictionary<PieceType, string> pieceNames = new Dictionary<PieceType, string>()
         {
             { PieceType.Pawn, "" },
@@ -17,7 +25,7 @@ namespace NBPChess
             { PieceType.King, "K" }
         };
 
-        public static string ParseMove(ChessMove move, MoveManager moveManager)
+        public static string ToAlgebraic(ChessMove move, MoveManager moveManager)
         {
             string moveString = "";
             //CheckForCastling
@@ -25,10 +33,11 @@ namespace NBPChess
             {
                 if (move.isQueenSideCastle)
                 {
-                    moveString = "0-0-0";
+                    moveString = queenSideCastle;
+
                 } else
                 {
-                    moveString = "0-0";
+                    moveString = kingSideCastle;
                 }
                 return moveString;
             }
@@ -65,7 +74,7 @@ namespace NBPChess
 
             if (isOpponentsKingInCheck)
             {
-                moveStrBuilder.Append('+');
+                moveStrBuilder.Append(oppKingInCheck);
             }
             moveStrBuilder.Append(pieceName);
             if (ambiguityByRank || (move.activePiece.GetPieceType() == PieceType.Pawn && move.passivePiece != null))
@@ -79,23 +88,109 @@ namespace NBPChess
             //Capture
             if (move.passivePiece != null)
             {
-                moveStrBuilder.Append('x');
+                moveStrBuilder.Append(capturedPiece);
             }
             moveStrBuilder.Append(dstFile);
             moveStrBuilder.Append(dstRank);
             //Promotion
             if (move.isPromotionMove)
             {
-                moveStrBuilder.Append('=');
+                moveStrBuilder.Append(promotion);
                 moveStrBuilder.Append(pieceNames[move.promotionType]);
             }
             if (isEnPassantMove)
             {
-                moveStrBuilder.Append("e.p.");
+                moveStrBuilder.Append(enPassant);
             }
             moveString = moveStrBuilder.ToString();
 
             return moveString;
+        }
+
+        public static ChessMove ToChessMove(string algebraicMove, MoveManager moveManager, PieceColor color)
+        {
+            ChessMove chessMove = new ChessMove();
+            if (string.Equals(algebraicMove, queenSideCastle))
+            {
+                return moveManager.GetCastlingMove(color, true);
+            } else if (string.Equals(algebraicMove, kingSideCastle))
+            {
+                return moveManager.GetCastlingMove(color, false);
+            }
+            //Not a castle move
+            PieceColor oppColor = (color == PieceColor.White) ? PieceColor.Black : PieceColor.White;
+            //Is opponents king in check
+            int curChar = 0;
+            if (algebraicMove[curChar] == oppKingInCheck)
+            {
+                chessMove.checksOpponent = true;
+                curChar++;
+            } else
+            {
+                chessMove.checksOpponent = false;
+            }
+
+            PieceType type = GetPieceName(algebraicMove[curChar].ToString());
+            curChar++;
+
+            Column srcCol, dstCol;
+            Row srcRow, dstRow;
+            bool srcColPresent = false, srcRowPresent = false;
+            //If there's ambiguity by rank
+            if (srcColPresent = Enum.TryParse(algebraicMove[curChar].ToString(), out srcCol))
+            {
+                curChar++;
+            }
+            //If there's ambiguity by file
+            if (srcRowPresent = Enum.TryParse(algebraicMove[curChar].ToString(), out srcRow))
+            {
+                curChar++;
+            }
+            //If there's captured piece
+            if (String.Equals(algebraicMove[curChar], capturedPiece))
+            {
+                curChar++;
+            }
+            //Destination
+            dstCol = (Column)Enum.Parse(typeof(Column), algebraicMove[curChar].ToString());
+            curChar++;
+            dstRow = (Row)Enum.Parse(typeof(Row), algebraicMove[curChar].ToString());
+            curChar++;
+            //Get all moves
+            List<ChessMove> allMoves = moveManager.AllAvailableMoves(color);
+            foreach (ChessMove move in allMoves)
+            {
+                if (move.toTile.col == dstCol && move.toTile.row == dstRow
+                    && (!srcColPresent || move.fromTile.col == srcCol)
+                    && (!srcRowPresent || move.fromTile.row == srcRow))
+                {
+                    chessMove = move;
+                    break;
+                }
+            }
+            //Promotion
+            if (String.Equals(algebraicMove[curChar], promotion))
+            {
+                curChar++;
+
+                chessMove.isCompletePromotionMove = true;
+                chessMove.isPromotionMove = true;
+                chessMove.promotionType = GetPieceName(algebraicMove[curChar].ToString());
+                curChar++;
+            }
+            return chessMove;
+        }
+
+        private static PieceType GetPieceName(string pieceName)
+        {
+            foreach (KeyValuePair<PieceType, string> pair in pieceNames)
+            {
+                if (pair.Value == pieceName)
+                {
+                    return pair.Key;
+                }
+            }
+            throw new System.Exception($"Piece type for string {pieceName} not found");
         }
     }
 }

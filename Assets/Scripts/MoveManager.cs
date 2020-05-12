@@ -201,7 +201,7 @@ namespace NBPChess
                 }
             }
         }
-        public List<ChessMove> AvailableMoves(Piece piece)
+        public List<ChessMove> AvailableMovesForPiece(Piece piece)
         {
             List<ChessMove> moves = FilterKingInCheckMoves(piece.GetColor(), piece.AvailableMoves(board));
             return moves;
@@ -216,7 +216,19 @@ namespace NBPChess
             {
                 if (pieces[i].GetPieceType() == type && pieces[i].GetColor() == color && pieces[i] != excludingPiece)
                 {
-                    allMoves.AddRange(AvailableMoves(pieces[i]));
+                    allMoves.AddRange(AvailableMovesForPiece(pieces[i]));
+                }
+            }
+            return allMoves;
+        }
+        public List<ChessMove> AllAvailableMoves(PieceColor color)
+        {
+            List<ChessMove> allMoves = new List<ChessMove>();
+            for (int i = 0; i < pieces.Count; i++)
+            {
+                if (pieces[i].GetColor() == color)
+                {
+                    allMoves.AddRange(AvailableMovesForPiece(pieces[i]));
                 }
             }
             return allMoves;
@@ -417,6 +429,30 @@ namespace NBPChess
             }
             return castleMoves;
         }
+        public ChessMove GetCastlingMove(PieceColor color, bool queenSide)
+        {
+            bool queenSideAvailable = false, kingSideAvailable = false;
+            List<ChessMove> castlingMoves = GetCastlingMoves(color, out queenSideAvailable, out kingSideAvailable);
+            if (queenSide)
+            {
+                if (!queenSideAvailable)
+                {
+                    throw new System.Exception("Requested castling move isnt valid");
+                } else
+                {
+                    return (kingSideAvailable) ? castlingMoves[1] : castlingMoves[0];
+                }
+            } else
+            {
+                if (!kingSideAvailable)
+                {
+                    throw new System.Exception("Requested castling move isnt valid");
+                } else
+                {
+                    return castlingMoves[0];
+                }
+            }
+        }
 
         private bool IsKingInCheck(PieceColor color)
         {
@@ -466,11 +502,11 @@ namespace NBPChess
             {
                 if (pieces[i].GetColor() == PieceColor.White)
                 {
-                    moveCountWhite += AvailableMoves(pieces[i]).Count;
+                    moveCountWhite += AvailableMovesForPiece(pieces[i]).Count;
                 }
                 else 
                 {
-                    moveCountBlack += AvailableMoves(pieces[i]).Count;
+                    moveCountBlack += AvailableMovesForPiece(pieces[i]).Count;
                 }
             }
         }
@@ -490,7 +526,6 @@ namespace NBPChess
                 DoMove(incompletePromotionMove);
             }
         }
-
         public List<ChessMove> GetAllMoves()
         {
             return allMoveHistory;
