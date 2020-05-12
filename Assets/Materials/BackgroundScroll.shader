@@ -1,9 +1,9 @@
-﻿Shader "Unlit/NewUnlitShader"
+﻿Shader "Unlit/BackgroundScroll"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-		_Scroll("Scroll", half2) = (1, 0)
+		_Scroll("Scroll", Vector) = (1, 0, 0, 0)
     }
     SubShader
     {
@@ -15,8 +15,6 @@
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            // make fog work
-            #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
 
@@ -35,6 +33,7 @@
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
+			float2 _Scroll;
 
             v2f vert (appdata v)
             {
@@ -47,7 +46,8 @@
             fixed4 frag (v2f i) : SV_Target
             {
                 // sample the texture
-                fixed4 col = tex2D(_MainTex, i.uv);
+				float2 uv = i.uv + (_Time.y * _Scroll);
+                fixed4 col = tex2D(_MainTex, uv);
                 return col;
             }
             ENDCG
