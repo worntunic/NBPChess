@@ -38,14 +38,33 @@ namespace NBPChess.Web
         public string username;
         public int id;
         public int rank;
-        public List<GameInfo> activeGames;
-        public List<GameInfo> finishedGames;
+        public List<PlayerGameInfo> activeGames;
+        public List<PlayerGameInfo> finishedGames;
     }
-    public struct GameInfo
+    public struct PlayerGameInfo
     {
         public int gameID;
         public PlayerData opponent;
         public GameState gameState;
         public int currentTimeLeft;
+    }
+    //Game Finding
+    public struct FullGameResponse
+    {
+        public GameInfo game;
+        public bool gamefound;
+    }
+    public struct GameInfo
+    {
+        public int id;
+        public FullGameData gamedata;
+    }
+    public struct FullGameData
+    {
+        public int wplayer;
+        public int bplayer;
+        public int wtimeleft;
+        public int btimeleft;
+        public GameState gamestate;
     }
 }

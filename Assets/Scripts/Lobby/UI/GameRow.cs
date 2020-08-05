@@ -10,7 +10,8 @@ namespace NBPChess.Lobby.UI
 {
     public class GameRow : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler, IPointerExitHandler
     {
-        private GameInfo gameInfo;
+        private GameTable gameTable;
+        private PlayerGameInfo gameInfo;
         [Header("Components")]
         public Image background;
         public Text username;
@@ -18,11 +19,15 @@ namespace NBPChess.Lobby.UI
         public Text time;
         public Text status;
         [Header("Visual options")]
-        public Color evenRowBkg, oddRowBkg, hoverRowBkg;
+        public Color evenRowBkg; 
+        public Color oddRowBkg, hoverRowBkg, selectRowBkg;
         private Color normalRowColor;
+        private bool selected = false;
 
-        public void Setup(bool evenRow, GameInfo gameInfo)
+
+        public void Setup(bool evenRow, PlayerGameInfo gameInfo, GameTable gameTable)
         {
+            this.gameTable = gameTable;
             this.gameInfo = gameInfo;
             normalRowColor = (evenRow) ? evenRowBkg : oddRowBkg;
             this.username.text = gameInfo.opponent.username;
@@ -40,19 +45,36 @@ namespace NBPChess.Lobby.UI
             this.background.color = normalRowColor;
         }
 
+        public void SelectRow()
+        {
+            this.background.color = selectRowBkg;
+            selected = true;
+        }
+        public void DeselectRow()
+        {
+            this.background.color = normalRowColor;
+            selected = false;
+        }
+
         public void OnPointerClick(PointerEventData eventData)
         {
-            throw new System.NotImplementedException();
+            gameTable.SelectRow(gameInfo, this);
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            this.background.color = hoverRowBkg;
+            if (!selected)
+            {
+                this.background.color = hoverRowBkg;
+            }
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            this.background.color = normalRowColor;
+            if (!selected)
+            {
+                this.background.color = normalRowColor;
+            }
         }
     }
 }

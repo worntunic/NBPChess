@@ -29,22 +29,19 @@ namespace NBPChess.Web {
         private const string registerSuffix = "/api/Player/Register";
         private const string loginSuffix = "/api/Player/Login";
         private const string activeGamesSuffix = "/api/Player/ActiveGames";
+        private const string findGameSuffix = "/api/Game/Find";
 
         private WebRequest webRequest;
         private LoginResponseData currentLoginData;
         //Events
         public event Action<LoginResponseData> onLoginFinished, onRegisterFinished;
         public event Action<FullPlayerData> onActiveGamesGot;
+        public event Action<FullGameResponse> onFindGame;
         public event Action<string, string> onError;
 
         public PlayerRequest()
         {
             webRequest = new WebRequest(rootUrl);
-        }
-
-        public void GetActiveGames(MonoBehaviour caller)
-        {
-            caller.StartCoroutine(webRequest.SendPost(activeGamesSuffix, "", GetActiveGamesFinished, RequestError, currentLoginData.token));
         }
 
         public void RegisterPlayer(string username, string password, MonoBehaviour caller)
@@ -56,6 +53,14 @@ namespace NBPChess.Web {
         {
             LoginRequestData lData = new LoginRequestData(username, password);
             caller.StartCoroutine(webRequest.SendPost(loginSuffix, lData.GetAsJson(), RegisterFinished, RequestError));
+        }
+        public void GetActiveGames(MonoBehaviour caller)
+        {
+            caller.StartCoroutine(webRequest.SendPost(activeGamesSuffix, "", GetActiveGamesFinished, RequestError, currentLoginData.token));
+        }
+        public void FindGame(MonoBehaviour caller)
+        {
+            caller.StartCoroutine(webRequest.SendPost(findGameSuffix, "", FindGameFinished, RequestError, currentLoginData.token));
         }
 
         //Callbacks
@@ -75,6 +80,11 @@ namespace NBPChess.Web {
         {
             Response<FullPlayerResponse> res = Response<FullPlayerResponse>.FromJson(data);
             onActiveGamesGot?.Invoke(res.data.player);
+        }
+        private void FindGameFinished(Dictionary<string, string> headers, string data)
+        {
+            Response<FullGameResponse> res = Response<FullGameResponse>.FromJson(data);
+            onFindGame?.Invoke(res.data);
         }
         private void RequestError(string errorMessage, string additionalData)
         {

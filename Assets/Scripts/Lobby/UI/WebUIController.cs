@@ -21,18 +21,28 @@ namespace NBPChess.Lobby.UI
         public Text playerNameText;
         public Text playerRankText;
         public Button logoutButton;
+        public Button findGameButton;
+        public Button joinGameButton;
+        public Text joinGameButtonText;
+        public DeselectZone deselectZone;
         [Header("Lobby Controllers")]
         public GameTable gameTable;
         [Header("Web")]
         private PlayerRequest playerRequest;
         private bool playerRequestInProgress = false;
         private PlayerData currentPlayerData;
-
+        [Header("General Visual Options")]
+        public Color normalTextColor, disabledTextColor;
+        //State
+        private PlayerGameInfo curSelectedGame;
+        private GameRow curSelectedRow;
+        private bool isCurSelected;
 
         public void Awake()
         {
             playerRequest = new PlayerRequest();
             ActivateLoginScreen();
+            OnDeselect();
         }
         private void OnEnable()
         {
@@ -45,6 +55,10 @@ namespace NBPChess.Lobby.UI
             playerRequest.onError += OnError;
             //Lobby Sub UI
             logoutButton.onClick.AddListener(OnLogoutClicked);
+            findGameButton.onClick.AddListener(OnFindGameClicked);
+            gameTable.onGameSelected += OnGameSelected;
+            joinGameButton.onClick.AddListener(OnJoinGameClicked);
+            deselectZone.onDeselectClicked += OnDeselect;
             //Lobby Sub Web
             playerRequest.onActiveGamesGot += OnActiveGamesGot;
 
@@ -60,24 +74,61 @@ namespace NBPChess.Lobby.UI
             playerRequest.onError -= OnError;
             //Lobby Sub UI
             logoutButton.onClick.RemoveListener(OnLogoutClicked);
+            findGameButton.onClick.RemoveListener(OnFindGameClicked);
+            gameTable.onGameSelected -= OnGameSelected;
+            joinGameButton.onClick.RemoveListener(OnJoinGameClicked);
+            deselectZone.onDeselectClicked -= OnDeselect;
+
+
             //Lobby Sub Web
             playerRequest.onActiveGamesGot -= OnActiveGamesGot;
         }
-
+        //UI Events
         public void OnLoginClicked()
         {
-            SetRequestInProgress(true);
+            SetLoginRequestInProgress(true);
             playerRequest.LoginPlayer(usernameInputField.text, passwordInputField.text, this);
+        }
+        public void OnRegisterClicked()
+        {
+            SetLoginRequestInProgress(true);
+            playerRequest.RegisterPlayer(usernameInputField.text, passwordInputField.text, this);
         }
         public void OnLogoutClicked()
         {
             ActivateLoginScreen();
         }
-
-        public void OnRegisterClicked()
+        public void OnFindGameClicked()
         {
-            SetRequestInProgress(true);
-            playerRequest.RegisterPlayer(usernameInputField.text, passwordInputField.text, this);
+            playerRequest.FindGame(this);
+            SetLobbyRequestInProgress(true, "Finding game...");
+        }
+        public void OnGameSelected(PlayerGameInfo gameInfo, GameRow gameRow)
+        {
+            if(isCurSelected)
+            {
+                curSelectedRow.DeselectRow();
+            }
+            curSelectedGame = gameInfo;
+            curSelectedRow = gameRow;
+            curSelectedRow.SelectRow();
+            isCurSelected = true;
+            joinGameButton.interactable = true;
+            joinGameButtonText.color = normalTextColor;
+        }
+        public void OnDeselect()
+        {
+            if (isCurSelected)
+            {
+                curSelectedRow.DeselectRow();
+            }
+            isCurSelected = false;
+            joinGameButton.interactable = false;
+            joinGameButtonText.color = disabledTextColor;
+        }
+        public void OnJoinGameClicked()
+        {
+            Debug.Log("Join game!");
         }
 
         //Event callbacks
@@ -93,7 +144,7 @@ namespace NBPChess.Lobby.UI
         }
         private void LoginSuccess(LoginResponseData lrData)
         {
-            SetRequestInProgress(false);
+            SetLoginRequestInProgress(false);
             currentPlayerData = lrData.playerData;
             ActivateLobbyScreen();
         }
@@ -101,7 +152,7 @@ namespace NBPChess.Lobby.UI
         {
             gameTable.PopulateRows(data.activeGames);
         }
-        private void SetRequestInProgress(bool requestInProgress)
+        private void SetLoginRequestInProgress(bool requestInProgress)
         {
             playerRequestInProgress = requestInProgress;
             requestActiveOverlay.SetActive(requestInProgress);
@@ -111,10 +162,15 @@ namespace NBPChess.Lobby.UI
             passwordInputField.interactable =
                 !requestInProgress;
         }
+        private void SetLobbyRequestInProgress(bool requestInProgress, string displayText = "")
+        {
+
+        }
 
         private void OnError(string errorMessage, string additionalData)
         {
-            SetRequestInProgress(false);
+            SetLoginRequestInProgress(false);
+            SetLobbyRequestInProgress(false);
             string notificationString = errorMessage;
             if (!string.IsNullOrEmpty(additionalData))
             {
