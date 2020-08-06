@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace NBPChess.Lobby.UI
 {
@@ -10,6 +11,8 @@ namespace NBPChess.Lobby.UI
     {
         public GameRow sampleRow;
         public GameObject rowParent;
+        public float rowHeight = 50;
+        public ScrollRect scrollRect;
 
         public event Action<PlayerGameInfo, GameRow> onGameSelected;
 
@@ -22,8 +25,13 @@ namespace NBPChess.Lobby.UI
             for (int i = 0; i < games.Count; ++i)
             {
                 GameRow current = GameObject.Instantiate(sampleRow, rowParent.transform);
+                RectTransform rt = (RectTransform)current.transform;
+                rt.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, i * rowHeight, rowHeight);
                 current.Setup(i % 2 == 0, games[i], this);
             }
+            ((RectTransform)rowParent.transform).SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, 0, games.Count * rowHeight);
+            scrollRect.verticalNormalizedPosition = 1;
+            Canvas.ForceUpdateCanvases();
         }
 
         public void SelectRow(PlayerGameInfo gameInfo, GameRow gameRow)

@@ -25,6 +25,8 @@ namespace NBPChess.Lobby.UI
         public Button joinGameButton;
         public Text joinGameButtonText;
         public DeselectZone deselectZone;
+        public GameObject requestInProgressLobbyOverlay;
+        public Text requestInProgressText;
         [Header("Lobby Controllers")]
         public GameTable gameTable;
         [Header("Web")]
@@ -61,6 +63,7 @@ namespace NBPChess.Lobby.UI
             deselectZone.onDeselectClicked += OnDeselect;
             //Lobby Sub Web
             playerRequest.onActiveGamesGot += OnActiveGamesGot;
+            playerRequest.onFindGame += OnFindGame;
 
         }
         private void OnDisable()
@@ -82,6 +85,7 @@ namespace NBPChess.Lobby.UI
 
             //Lobby Sub Web
             playerRequest.onActiveGamesGot -= OnActiveGamesGot;
+            playerRequest.onFindGame -= OnFindGame;
         }
         //UI Events
         public void OnLoginClicked()
@@ -152,6 +156,17 @@ namespace NBPChess.Lobby.UI
         {
             gameTable.PopulateRows(data.activeGames);
         }
+        private void OnFindGame(FullGameResponse gameResponse)
+        {
+            if (!gameResponse.gamefound)
+            {
+                playerRequest.FindGame(this);
+            } else
+            {
+                Debug.Log(gameResponse.game.gamedata.bplayer);
+                SetLobbyRequestInProgress(false);
+            }
+        }
         private void SetLoginRequestInProgress(bool requestInProgress)
         {
             playerRequestInProgress = requestInProgress;
@@ -164,7 +179,8 @@ namespace NBPChess.Lobby.UI
         }
         private void SetLobbyRequestInProgress(bool requestInProgress, string displayText = "")
         {
-
+            requestInProgressLobbyOverlay.SetActive(requestInProgress);
+            requestInProgressText.text = displayText;
         }
 
         private void OnError(string errorMessage, string additionalData)
