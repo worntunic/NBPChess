@@ -22,6 +22,8 @@ namespace NBPChess
         public int newArtSet;
         private int currentArtSet;
         private GameState gameState;
+        public bool localGame = false;
+        public PieceColor localPlayerColor = PieceColor.White;
 
         public void Awake()
         {
@@ -92,6 +94,18 @@ namespace NBPChess
         public GameState GetGameState()
         {
             return gameState;
+        }
+
+        public bool CanPieceMove(PieceColor color)
+        {
+            bool canPieceMove = true;
+            canPieceMove = (color == PieceColor.White && GetGameState() == GameState.WhiteMove)
+            || (color == PieceColor.Black && GetGameState() == GameState.BlackMove);
+            if (!localGame)
+            {
+                canPieceMove = canPieceMove && color == localPlayerColor;
+            }
+            return canPieceMove;
         }
 
         public Piece CreateNewPiece(PieceType type, PieceColor color, Row row, Column col)

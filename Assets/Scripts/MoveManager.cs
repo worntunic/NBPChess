@@ -134,9 +134,7 @@ namespace NBPChess
 
         public bool CanPieceMove(PieceColor color)
         {
-            bool canItMove = (gameManager.GetGameState() == GameState.WhiteMove && color == PieceColor.White)
-                || (gameManager.GetGameState() == GameState.BlackMove && color == PieceColor.Black);
-            return canItMove;
+            return gameManager.CanPieceMove(color);
         }
 
         public MoveManager(ChessGameManager gameManager, Board board)

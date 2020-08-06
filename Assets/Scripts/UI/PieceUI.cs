@@ -17,6 +17,7 @@ namespace NBPChess
         private Image currentImage;
         private TileUI currentTileUI;
         private MoveManager moveManager;
+        
 
         private void ChangeColor()
         {
