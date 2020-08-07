@@ -9,6 +9,21 @@ namespace NBPChess.Web {
     
     public class PlayerRequest
     {
+        private struct GameInfoRequestData
+        {
+            public int gameid;
+
+            public GameInfoRequestData(int GameID)
+            {
+                this.gameid = GameID;
+            }
+
+            public string GetAsJson()
+            {
+                string json = JsonConvert.SerializeObject(this);
+                return json;
+            }
+        }
         private struct LoginRequestData
         {           
             public string username;
@@ -30,13 +45,15 @@ namespace NBPChess.Web {
         private const string loginSuffix = "/api/Player/Login";
         private const string activeGamesSuffix = "/api/Player/ActiveGames";
         private const string findGameSuffix = "/api/Game/Find";
+        private const string allGameInfoSuffix = "/api/Game/AllInfo";
 
         private WebRequest webRequest;
         private LoginResponseData currentLoginData;
         //Events
         public event Action<LoginResponseData> onLoginFinished, onRegisterFinished;
         public event Action<FullPlayerData> onActiveGamesGot;
-        public event Action<FullGameResponse> onFindGame;
+        public event Action<GameResponse> onFindGame;
+        public event Action<GameWithMovesResponse> onGetAllGameInfo;
         public event Action<string, string> onError;
 
         public PlayerRequest()
@@ -62,6 +79,11 @@ namespace NBPChess.Web {
         {
             caller.StartCoroutine(webRequest.SendPost(findGameSuffix, "", FindGameFinished, RequestError, currentLoginData.token));
         }
+        public void GetAllGameInfo(int gameID, MonoBehaviour caller)
+        {
+            GameInfoRequestData girData = new GameInfoRequestData(gameID);
+            caller.StartCoroutine(webRequest.SendPost(allGameInfoSuffix, girData.GetAsJson(), AllGameInfoFinished, RequestError, currentLoginData.token));
+        }
 
         //Callbacks
         private void RegisterFinished(Dictionary<string, string> headers, string data)
@@ -83,8 +105,13 @@ namespace NBPChess.Web {
         }
         private void FindGameFinished(Dictionary<string, string> headers, string data)
         {
-            Response<FullGameResponse> res = Response<FullGameResponse>.FromJson(data);
+            Response<GameResponse> res = Response<GameResponse>.FromJson(data);
             onFindGame?.Invoke(res.data);
+        }
+        private void AllGameInfoFinished(Dictionary<string, string> headers, string data)
+        {
+            Response<GameWithMovesResponse> res = Response<GameWithMovesResponse>.FromJson(data);
+            onGetAllGameInfo?.Invoke(res.data);
         }
         private void RequestError(string errorMessage, string additionalData)
         {

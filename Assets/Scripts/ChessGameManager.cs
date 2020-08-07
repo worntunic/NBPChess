@@ -1,4 +1,5 @@
 ﻿using NBPChess.UI;
+using NBPChess.Web;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -28,7 +29,7 @@ namespace NBPChess
         public void Awake()
         {
             currentArtSet = newArtSet;
-            CreateGame();
+            //CreateGame();
         }
 
         private void Update()
@@ -111,6 +112,33 @@ namespace NBPChess
         public Piece CreateNewPiece(PieceType type, PieceColor color, Row row, Column col)
         {
             return pieceManager.CreatePiece(color, row, col, type);
+        }
+
+        public void LoadOnlineGame(GameInfoWithMoves gameInfo, PlayerData localPlayerData)
+        {
+            localGame = false;
+            //Determine local color
+            if (localPlayerData.id == gameInfo.gamedata.wplayer)
+            {
+                localPlayerColor = PieceColor.White;
+            } else
+            {
+                localPlayerColor = PieceColor.Black;
+            }
+            //Get opponent info (TODO)
+            //Insert moves
+            CreateGame();
+            PieceColor[] colors = new PieceColor[] { PieceColor.White, PieceColor.Black };
+            for (int i = 0; i < gameInfo.moves.Count; ++i)
+            {
+                AddMove(gameInfo.moves[i], colors[i % 2]);
+            }
+        }
+
+        private void AddMove(string algebraicMove, PieceColor player)
+        {
+            ChessMove move = AlgebraicNotation.ToChessMove(algebraicMove, moveManager, player);
+            moveManager.DoMove(move);
         }
     }
 }

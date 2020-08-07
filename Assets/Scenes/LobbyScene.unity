@@ -565,8 +565,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a84a0909e0e2d5a4e834c05dac5cab9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LoginScreen: {fileID: 1733005531}
-  LobbyScreen: {fileID: 227117528}
+  loginScreen: {fileID: 1733005531}
+  lobbyScreen: {fileID: 227117528}
   loginButton: {fileID: 237846884}
   registerButton: {fileID: 1939364412}
   requestActiveOverlay: {fileID: 2044261092}
@@ -583,6 +583,8 @@ MonoBehaviour:
   requestInProgressLobbyOverlay: {fileID: 1937434831}
   requestInProgressText: {fileID: 1363355741}
   gameTable: {fileID: 402948690}
+  chessScreen: {fileID: 2134264033}
+  chessGameManager: {fileID: 2134264034}
   normalTextColor: {r: 1, g: 1, b: 1, a: 1}
   disabledTextColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
 --- !u!1 &334226326
@@ -3489,6 +3491,24 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dc0235b0cb588c84c98ec34a19e69b55, type: 3}
+--- !u!1 &2134264033 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7370731112565289812, guid: dc0235b0cb588c84c98ec34a19e69b55,
+    type: 3}
+  m_PrefabInstance: {fileID: 2134264032}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2134264034 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2016071774, guid: dc0235b0cb588c84c98ec34a19e69b55,
+    type: 3}
+  m_PrefabInstance: {fileID: 2134264032}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2134264033}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c816811209f1ae142adaf752c8d0a8e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2140659234
 GameObject:
   m_ObjectHideFlags: 0

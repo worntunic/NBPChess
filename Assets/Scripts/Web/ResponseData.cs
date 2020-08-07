@@ -49,17 +49,28 @@ namespace NBPChess.Web
         public int currentTimeLeft;
     }
     //Game Finding
-    public struct FullGameResponse
+    public struct GameResponse
     {
         public GameInfo game;
+        public bool gamefound;
+    }
+    public struct GameWithMovesResponse
+    {
+        public GameInfoWithMoves game;
         public bool gamefound;
     }
     public struct GameInfo
     {
         public int id;
-        public FullGameData gamedata;
+        public GameData gamedata;
     }
-    public struct FullGameData
+    public struct GameInfoWithMoves
+    {
+        public int id;
+        public List<string> moves;
+        public GameData gamedata;
+    }
+    public struct GameData
     {
         public int wplayer;
         public int bplayer;

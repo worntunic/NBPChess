@@ -9,8 +9,8 @@ namespace NBPChess.Lobby.UI
     public class WebUIController : MonoBehaviour
     {
         [Header("Containers")]
-        public GameObject LoginScreen;
-        public GameObject LobbyScreen;
+        public GameObject loginScreen;
+        public GameObject lobbyScreen;
         [Header("Login UI Elements")]
         public Button loginButton;
         public Button registerButton;
@@ -29,6 +29,9 @@ namespace NBPChess.Lobby.UI
         public Text requestInProgressText;
         [Header("Lobby Controllers")]
         public GameTable gameTable;
+        [Header("Chess Screen")]
+        public GameObject chessScreen;
+        public ChessGameManager chessGameManager;
         [Header("Web")]
         private PlayerRequest playerRequest;
         private bool playerRequestInProgress = false;
@@ -64,6 +67,7 @@ namespace NBPChess.Lobby.UI
             //Lobby Sub Web
             playerRequest.onActiveGamesGot += OnActiveGamesGot;
             playerRequest.onFindGame += OnFindGame;
+            playerRequest.onGetAllGameInfo += OnAllGameInfo;
 
         }
         private void OnDisable()
@@ -86,6 +90,7 @@ namespace NBPChess.Lobby.UI
             //Lobby Sub Web
             playerRequest.onActiveGamesGot -= OnActiveGamesGot;
             playerRequest.onFindGame -= OnFindGame;
+            playerRequest.onGetAllGameInfo -= OnAllGameInfo;
         }
         //UI Events
         public void OnLoginClicked()
@@ -132,7 +137,7 @@ namespace NBPChess.Lobby.UI
         }
         public void OnJoinGameClicked()
         {
-            Debug.Log("Join game!");
+            playerRequest.GetAllGameInfo(curSelectedGame.gameID, this);
         }
 
         //Event callbacks
@@ -156,16 +161,21 @@ namespace NBPChess.Lobby.UI
         {
             gameTable.PopulateRows(data.activeGames);
         }
-        private void OnFindGame(FullGameResponse gameResponse)
+        private void OnFindGame(GameResponse gameResponse)
         {
             if (!gameResponse.gamefound)
             {
                 playerRequest.FindGame(this);
             } else
             {
-                Debug.Log(gameResponse.game.gamedata.bplayer);
-                SetLobbyRequestInProgress(false);
+                //Debug.Log(gameResponse.game.gamedata.bplayer);
+                playerRequest.GetAllGameInfo(gameResponse.game.id, this);
+                //SetLobbyRequestInProgress(false);
             }
+        }
+        private void OnAllGameInfo(GameWithMovesResponse gameResponse)
+        {
+            OpenGame(gameResponse);
         }
         private void SetLoginRequestInProgress(bool requestInProgress)
         {
@@ -198,8 +208,9 @@ namespace NBPChess.Lobby.UI
 
         private void ActivateLobbyScreen()
         {
-            LobbyScreen.SetActive(true);
-            LoginScreen.SetActive(false);
+            lobbyScreen.SetActive(true);
+            loginScreen.SetActive(false);
+            chessScreen.SetActive(false);
 
             playerNameText.text = currentPlayerData.username;
             playerRankText.text = $"Rank: {currentPlayerData.rank.ToString()}";
@@ -208,14 +219,25 @@ namespace NBPChess.Lobby.UI
         }
         private void ActivateLoginScreen()
         {
-            LobbyScreen.SetActive(false);
-            LoginScreen.SetActive(true);
+            lobbyScreen.SetActive(false);
+            loginScreen.SetActive(true);
 
             usernameInputField.text = "";
             passwordInputField.text = "";
         }
+        private void ActivateChessScreen()
+        {
+            chessScreen.SetActive(true);
+            lobbyScreen.SetActive(false);
+        }
 
+        private void OpenGame(GameWithMovesResponse gameResponse)
+        {
+            SetLobbyRequestInProgress(false);
+            ActivateChessScreen();
 
+            chessGameManager.LoadOnlineGame(gameResponse.game, currentPlayerData);
+        }
     }
 }
 
