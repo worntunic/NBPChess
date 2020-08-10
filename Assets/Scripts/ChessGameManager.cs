@@ -1,4 +1,5 @@
-﻿using NBPChess.UI;
+﻿using NBPChess.Lobby.UI;
+using NBPChess.UI;
 using NBPChess.Web;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ namespace NBPChess
 
     public class ChessGameManager : MonoBehaviour
     {
+        public WebUIController webController;
         public Board board;
         public PieceManager pieceManager;
         public PawnPromotionUI pawnPromotionUI;
@@ -25,11 +27,16 @@ namespace NBPChess
         private GameState gameState;
         public bool localGame = false;
         public PieceColor localPlayerColor = PieceColor.White;
+        private int onlineGameID;
+        public bool createOnAwake = false;
 
         public void Awake()
         {
             currentArtSet = newArtSet;
-            //CreateGame();
+            if (createOnAwake)
+            {
+                CreateGame();
+            }
         }
 
         private void Update()
@@ -57,6 +64,15 @@ namespace NBPChess
             }
         }
 
+        public void MovePlayed(ChessMove move, bool newMove)
+        {
+            ChangeGameState();
+            if (!localGame && newMove)
+            {
+                string anMove = AlgebraicNotation.ToAlgebraic(move, moveManager);
+                webController.PlayMove(onlineGameID, anMove, gameState);
+            }
+        }
         public void ChangeGameState()
         {
             int whiteMoveCount, blackMoveCount;
@@ -65,18 +81,22 @@ namespace NBPChess
             {
                 gameState = GameState.Tie;
                 TieOccurred();
-            } else if (whiteMoveCount == 0)
+            }
+            else if (whiteMoveCount == 0)
             {
                 gameState = GameState.BlackWin;
                 PlayerWon(PieceColor.Black);
-            } else if (blackMoveCount == 0)
+            }
+            else if (blackMoveCount == 0)
             {
                 gameState = GameState.WhiteWin;
                 PlayerWon(PieceColor.White);
-            } else if (gameState == GameState.WhiteMove)
+            }
+            else if (gameState == GameState.WhiteMove)
             {
                 gameState = GameState.BlackMove;
-            } else
+            }
+            else
             {
                 gameState = GameState.WhiteMove;
             }
@@ -97,12 +117,12 @@ namespace NBPChess
             return gameState;
         }
 
-        public bool CanPieceMove(PieceColor color)
+        public bool CanPieceMove(PieceColor color, bool newMove)
         {
             bool canPieceMove = true;
             canPieceMove = (color == PieceColor.White && GetGameState() == GameState.WhiteMove)
             || (color == PieceColor.Black && GetGameState() == GameState.BlackMove);
-            if (!localGame)
+            if (!localGame && newMove)
             {
                 canPieceMove = canPieceMove && color == localPlayerColor;
             }
@@ -117,6 +137,7 @@ namespace NBPChess
         public void LoadOnlineGame(GameInfoWithMoves gameInfo, PlayerData localPlayerData)
         {
             localGame = false;
+            onlineGameID = gameInfo.id;
             //Determine local color
             if (localPlayerData.id == gameInfo.gamedata.wplayer)
             {
@@ -135,10 +156,27 @@ namespace NBPChess
             }
         }
 
-        private void AddMove(string algebraicMove, PieceColor player)
+        public void AddMove(string algebraicMove, PieceColor player)
         {
             ChessMove move = AlgebraicNotation.ToChessMove(algebraicMove, moveManager, player);
-            moveManager.DoMove(move);
+            moveManager.DoMove(move, false, false);
+        }
+
+        public void UpdateGameForOpponent(GameInfoWithMoves gameInfo)
+        {
+            ChessMove move = AlgebraicNotation.ToChessMove(gameInfo.moves[gameInfo.moves.Count - 1], moveManager, GetOpponentColor());
+            moveManager.DoMove(move, false, false);
+        }
+
+        private PieceColor GetOpponentColor()
+        {
+            if (localPlayerColor == PieceColor.White)
+            {
+                return PieceColor.Black;
+            } else
+            {
+                return PieceColor.White;
+            }
         }
     }
 }

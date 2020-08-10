@@ -132,9 +132,9 @@ namespace NBPChess
         //private bool isCurrentStateActive = true;
         private List<ChessMove> allMoveHistory = new List<ChessMove>();
 
-        public bool CanPieceMove(PieceColor color)
+        public bool CanPieceMove(PieceColor color, bool newMove = true)
         {
-            return gameManager.CanPieceMove(color);
+            return gameManager.CanPieceMove(color, newMove);
         }
 
         public MoveManager(ChessGameManager gameManager, Board board)
@@ -250,9 +250,9 @@ namespace NBPChess
             return threatenedTiles;
         }
 
-        public ChessMove DoMove(ChessMove move, bool simulate = false)
+        public ChessMove DoMove(ChessMove move, bool simulate = false, bool newMove = true)
         {
-            if (!simulate && !CanPieceMove(move.activePiece.GetColor()))
+            if (!simulate && !CanPieceMove(move.activePiece.GetColor(), newMove))
             {
                 return move;
             }
@@ -308,7 +308,7 @@ namespace NBPChess
                 }
                 if (!simulate)
                 {
-                    gameManager.ChangeGameState();
+                    gameManager.MovePlayed(move, newMove);
                 }
                 ChangeThreatenedSpaces();
 
@@ -316,9 +316,9 @@ namespace NBPChess
             return move;
         }
 
-        public void UndoMove(ChessMove move, bool simulate = false)
+        public void UndoMove(ChessMove move, bool simulate = false, bool newMove = true)
         {
-            if (!simulate && !CanPieceMove(move.activePiece.GetColor()))
+            if (!simulate && !CanPieceMove(move.activePiece.GetColor(), newMove))
             {
                 return;
             }

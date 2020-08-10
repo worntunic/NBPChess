@@ -109,7 +109,16 @@ namespace NBPChess
 
         public static ChessMove ToChessMove(string algebraicMove, MoveManager moveManager, PieceColor color)
         {
-            ChessMove chessMove = new ChessMove();
+            List<ChessMove> allMoves = moveManager.AllAvailableMoves(color);
+            foreach (ChessMove move in allMoves)
+            {
+                if (ToAlgebraic(move, moveManager) == algebraicMove)
+                {
+                    return move;
+                }
+            }
+            throw new Exception("Move cannot be performed");
+            /*ChessMove chessMove = new ChessMove();
             if (string.Equals(algebraicMove, queenSideCastle))
             {
                 return moveManager.GetCastlingMove(color, true);
@@ -131,7 +140,11 @@ namespace NBPChess
             }
 
             PieceType type = GetPieceName(algebraicMove[curChar].ToString());
-            curChar++;
+            if (type != PieceType.Pawn)
+            {
+                curChar++;
+            }
+
 
             Column srcCol, dstCol;
             Row srcRow, dstRow;
@@ -178,7 +191,7 @@ namespace NBPChess
                 chessMove.promotionType = GetPieceName(algebraicMove[curChar].ToString());
                 curChar++;
             }
-            return chessMove;
+            return chessMove;*/
         }
 
         private static PieceType GetPieceName(string pieceName)
@@ -190,7 +203,8 @@ namespace NBPChess
                     return pair.Key;
                 }
             }
-            throw new System.Exception($"Piece type for string {pieceName} not found");
+            return PieceType.Pawn;
+            //throw new System.Exception($"Piece type for string {pieceName} not found");
         }
     }
 }

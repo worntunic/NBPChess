@@ -9,6 +9,25 @@ namespace NBPChess.Web {
     
     public class PlayerRequest
     {
+        private struct PlayMoveRequestData
+        {
+            public int gameid;
+            public string move;
+            public GameState gamestate;
+
+            public PlayMoveRequestData(int GameID, string move, GameState gamestate)
+            {
+                this.gameid = GameID;
+                this.move = move;
+                this.gamestate = gamestate;
+            }
+
+            public string GetAsJson()
+            {
+                string json = JsonConvert.SerializeObject(this);
+                return json;
+            }
+        }
         private struct GameInfoRequestData
         {
             public int gameid;
@@ -46,6 +65,8 @@ namespace NBPChess.Web {
         private const string activeGamesSuffix = "/api/Player/ActiveGames";
         private const string findGameSuffix = "/api/Game/Find";
         private const string allGameInfoSuffix = "/api/Game/AllInfo";
+        private const string playMoveSuffix = "/api/Game/PlayMove";
+        private const string stateChangedSuffix = "/api/Game/WaitForGameState";
 
         private WebRequest webRequest;
         private LoginResponseData currentLoginData;
@@ -54,6 +75,8 @@ namespace NBPChess.Web {
         public event Action<FullPlayerData> onActiveGamesGot;
         public event Action<GameResponse> onFindGame;
         public event Action<GameWithMovesResponse> onGetAllGameInfo;
+        public event Action<GameWithMovesResponse> onPlayMoveFinished;
+        public event Action<GameWithMovesResponse> onWaitForGameStateFinished;
         public event Action<string, string> onError;
 
         public PlayerRequest()
@@ -84,6 +107,16 @@ namespace NBPChess.Web {
             GameInfoRequestData girData = new GameInfoRequestData(gameID);
             caller.StartCoroutine(webRequest.SendPost(allGameInfoSuffix, girData.GetAsJson(), AllGameInfoFinished, RequestError, currentLoginData.token));
         }
+        public void PlayMove(int gameID, string move, GameState gameState, MonoBehaviour caller)
+        {
+            PlayMoveRequestData pmrData = new PlayMoveRequestData(gameID, move, gameState);
+            caller.StartCoroutine(webRequest.SendPost(playMoveSuffix, pmrData.GetAsJson(), PlayMoveFinished, RequestError, currentLoginData.token));
+        }
+        public void WaitForGameStateChange(int gameID, MonoBehaviour caller)
+        {
+            GameInfoRequestData girData = new GameInfoRequestData(gameID);
+            caller.StartCoroutine(webRequest.SendPost(stateChangedSuffix, girData.GetAsJson(), WaitForGameStateFinished, RequestError, currentLoginData.token));
+        }
 
         //Callbacks
         private void RegisterFinished(Dictionary<string, string> headers, string data)
@@ -112,6 +145,17 @@ namespace NBPChess.Web {
         {
             Response<GameWithMovesResponse> res = Response<GameWithMovesResponse>.FromJson(data);
             onGetAllGameInfo?.Invoke(res.data);
+        }
+        //Chess
+        private void PlayMoveFinished(Dictionary<string, string> headers, string data)
+        {
+            Response<GameWithMovesResponse> res = Response<GameWithMovesResponse>.FromJson(data);
+            onPlayMoveFinished?.Invoke(res.data);
+        }
+        private void WaitForGameStateFinished(Dictionary<string, string> headers, string data)
+        {
+            Response<GameWithMovesResponse> res = Response<GameWithMovesResponse>.FromJson(data);
+            onWaitForGameStateFinished?.Invoke(res.data);
         }
         private void RequestError(string errorMessage, string additionalData)
         {
