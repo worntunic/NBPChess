@@ -29,7 +29,9 @@ namespace NBPChess.Lobby.UI
                 rt.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, i * rowHeight, rowHeight);
                 current.Setup(i % 2 == 0, games[i], this);
             }
-            ((RectTransform)rowParent.transform).SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, 0, games.Count * rowHeight);
+            RectTransform contentParent = (RectTransform)(rowParent.transform.parent);
+            float contentHeight = Mathf.Max(games.Count * rowHeight, contentParent.rect.height);
+            ((RectTransform)rowParent.transform).SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, 0, contentHeight);
             scrollRect.verticalNormalizedPosition = 1;
             Canvas.ForceUpdateCanvases();
         }

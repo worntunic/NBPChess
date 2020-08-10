@@ -32,6 +32,7 @@ namespace NBPChess.Lobby.UI
         [Header("Chess Screen")]
         public GameObject chessScreen;
         public ChessGameManager chessGameManager;
+        public Button exitChessGameButton;
         [Header("Web")]
         private PlayerRequest playerRequest;
         private bool playerRequestInProgress = false;
@@ -42,6 +43,7 @@ namespace NBPChess.Lobby.UI
         private PlayerGameInfo curSelectedGame;
         private GameRow curSelectedRow;
         private bool isCurSelected;
+        private bool inChessGame = false;
 
         public void Awake()
         {
@@ -71,6 +73,8 @@ namespace NBPChess.Lobby.UI
             //Chess Sub Web
             playerRequest.onPlayMoveFinished += OnPlayMoveFinished;
             playerRequest.onWaitForGameStateFinished += OnGameStateFinished;
+            //Chess Sub UI
+            exitChessGameButton.onClick.AddListener(OnExitChessGameClicked);
         }
         private void OnDisable()
         {
@@ -96,6 +100,8 @@ namespace NBPChess.Lobby.UI
             //Chess Sub Web
             playerRequest.onPlayMoveFinished -= OnPlayMoveFinished;
             playerRequest.onWaitForGameStateFinished -= OnGameStateFinished;
+            //Chess Sub UI
+            exitChessGameButton.onClick.RemoveListener(OnExitChessGameClicked);
         }
         //UI Events
         public void OnLoginClicked()
@@ -153,6 +159,10 @@ namespace NBPChess.Lobby.UI
         {
             playerRequest.WaitForGameStateChange(gameID, this);
         }
+        public void OnExitChessGameClicked()
+        {
+            ActivateLobbyScreen();
+        }
 
         //Event callbacks
         private void OnLoginFinished(LoginResponseData lrData)
@@ -194,18 +204,24 @@ namespace NBPChess.Lobby.UI
 
         private void OnPlayMoveFinished(GameWithMovesResponse gameResponse)
         {
-            WaitForGameState(gameResponse.game.id);
-        }
-        private void OnGameStateFinished(GameWithMovesResponse gameResponse)
-        {
-            if (gameResponse.game.gamedata.gamestate != chessGameManager.GetGameState())
-            {
-                chessGameManager.UpdateGameForOpponent(gameResponse.game);
-            } else
+            if (inChessGame)
             {
                 WaitForGameState(gameResponse.game.id);
             }
-
+        }
+        private void OnGameStateFinished(GameWithMovesResponse gameResponse)
+        {
+            if (inChessGame)
+            {
+                if (gameResponse.game.gamedata.gamestate != chessGameManager.GetGameState())
+                {
+                    chessGameManager.UpdateGameForOpponent(gameResponse.game);
+                }
+                else
+                {
+                    WaitForGameState(gameResponse.game.id);
+                }
+            }
         }
 
         private void SetLoginRequestInProgress(bool requestInProgress)
@@ -239,6 +255,8 @@ namespace NBPChess.Lobby.UI
 
         private void ActivateLobbyScreen()
         {
+            isCurSelected = false;
+            inChessGame = false;
             lobbyScreen.SetActive(true);
             loginScreen.SetActive(false);
             chessScreen.SetActive(false);
@@ -251,6 +269,7 @@ namespace NBPChess.Lobby.UI
         private void ActivateLoginScreen()
         {
             lobbyScreen.SetActive(false);
+            chessScreen.SetActive(false);
             loginScreen.SetActive(true);
 
             usernameInputField.text = "";
@@ -258,15 +277,17 @@ namespace NBPChess.Lobby.UI
         }
         private void ActivateChessScreen()
         {
+            inChessGame = true;
             chessScreen.SetActive(true);
             lobbyScreen.SetActive(false);
+            loginScreen.SetActive(false);
         }
         //Chess
         private void OpenGame(GameWithMovesResponse gameResponse)
         {
             SetLobbyRequestInProgress(false);
             ActivateChessScreen();
-
+            
             chessGameManager.LoadOnlineGame(gameResponse.game, currentPlayerData);
         }
 

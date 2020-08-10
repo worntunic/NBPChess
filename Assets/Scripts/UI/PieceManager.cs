@@ -22,6 +22,7 @@ namespace NBPChess
         public Transform piecesParent;
         private List<Piece> piecesState;
         private Dictionary<Piece, PieceUI> piecesWithUI = new Dictionary<Piece, PieceUI>();
+        private bool initialized = false;
         private PieceType[] initialState = new PieceType[16]
         {
             PieceType.Rook, PieceType.Knight, PieceType.Bishop, PieceType.Queen, PieceType.King, PieceType.Bishop, PieceType.Knight, PieceType.Rook,
@@ -33,9 +34,22 @@ namespace NBPChess
             this.moveManager = moveManager;
             this.board = board;
             this.artSet = artSet;
+            if (initialized)
+            {
+                foreach (Piece piece in piecesState)
+                {
+                    if (piecesWithUI.ContainsKey(piece))
+                    {
+                        Destroy(piecesWithUI[piece].gameObject);
+                        piecesWithUI.Remove(piece);
+                    }
+                }
+            }
+            piecesWithUI = new Dictionary<Piece, PieceUI>();
             piecesState = new List<Piece>();
             piecesState.AddRange(CreatePieces(PieceColor.White));
             piecesState.AddRange(CreatePieces(PieceColor.Black));
+            initialized = true;
             //moveManager.RegisterAllPieces(piecesState);
 
         }

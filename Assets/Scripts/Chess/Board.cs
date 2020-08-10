@@ -15,6 +15,7 @@ namespace NBPChess
         private RectTransform boardBoundaryRect;
         private TileUI currentlyPointedTile;
         private List<PieceUI> activePieces = new List<PieceUI>();
+        private bool initialized = false;
 
         public void ChangeArtSet(ChessArtSet artSet)
         {
@@ -25,9 +26,21 @@ namespace NBPChess
         }
 		public void Initalize(ChessArtSet artSet)
 		{
-            this.boardBoundaryRect = (RectTransform)transform;
             this.artSet = artSet;
+            if (initialized)
+            {
+                foreach (Tile t in board)
+                {
+                    if (tilesWithUI.ContainsKey(t))
+                    {
+                        Destroy(tilesWithUI[t].gameObject);
+                        tilesWithUI.Remove(t);
+                    }
+                }
+            }
+            this.boardBoundaryRect = (RectTransform)transform;
             GenerateBoard();
+            initialized = true;
 		}
 
 		public void GenerateBoard()

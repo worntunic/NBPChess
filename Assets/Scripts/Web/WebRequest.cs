@@ -35,7 +35,7 @@ namespace NBPChess.Web
 
                 if (request.isNetworkError)
                 {
-                    Debug.LogError(request.error);
+                    //Debug.LogError(request.error);
                     errorCallback?.Invoke(request.error, "");
                 }
                 if (request.isDone)

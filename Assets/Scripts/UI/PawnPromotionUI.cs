@@ -17,13 +17,18 @@ namespace NBPChess.UI
         private MoveManager moveManager;
         private ChessArtSet artSet;
         private PieceColor currentColor = PieceColor.White;
+        private bool initialized = false;
 
         public void Initialize(ChessArtSet artSet, MoveManager moveManager)
         {
             this.moveManager = moveManager;
             moveManager.onPawnPromotionStarted += SetupPawnPromotion;
-            RegisterButtonEvents();
             ChangeArtSet(artSet);
+            if (!initialized)
+            {
+                RegisterButtonEvents();
+            }
+            initialized = true;
         }
         private void RegisterButtonEvents()
         {
