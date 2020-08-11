@@ -14,44 +14,61 @@ namespace NBPChess.UI
         public Transform FXRoot;
         public GameObject victoryPanel;
         public Text victoryText;
+        private bool victoryEffectsActive = false;
+        public string localWinMessage = "You won!", localLossMessage = "You lost.";
 
         public void OpenTieScreen()
         {
             victoryText.text = "tie!";
             victoryPanel.SetActive(true);
         }
-
-        public void OpenVictoryScreen(PieceColor victoryColor)
+        public void CloseVictoryScreen()
         {
-
-            string victoryString = (victoryColor + " won!");
-            if (victoryColor == PieceColor.White)
+            victoryPanel.SetActive(false);
+        }
+        public void OpenVictoryScreen(bool localPlayerWon)
+        {
+            string victoryString = (localPlayerWon) ? localWinMessage : localLossMessage;
+            victoryText.text = victoryString;
+            if (localPlayerWon)
             {
-                victoryString = victoryString.ToLower();
-
+                CreateVictoryEffects();
             } else
             {
-                victoryString = victoryString.ToUpper();
+                DestroyVictoryEffects();
             }
-            victoryText.text = victoryString;
-            CreateVictoryEffects();
+
             victoryPanel.SetActive(true);
         }
-
+        private void DestroyVictoryEffects()
+        {
+            if (victoryEffectsActive)
+            {
+                foreach (Transform child in FXRoot)
+                {
+                    Destroy(child.gameObject);
+                }
+                victoryEffectsActive = false;
+            }
+        }
         private void CreateVictoryEffects()
         {
-            for (int i = 0; i < fxCount; i++)
+            if (!victoryEffectsActive)
             {
-                Image current = Instantiate(winPrefab, FXRoot);
-                float xOffset = Random.Range(0f, 1f);
-                float yOffset = Random.Range(0f, 1f);
-                float size = Random.Range(minSize, maxSize);
+                for (int i = 0; i < fxCount; i++)
+                {
+                    Image current = Instantiate(winPrefab, FXRoot);
+                    float xOffset = Random.Range(0f, 1f);
+                    float yOffset = Random.Range(0f, 1f);
+                    float size = Random.Range(minSize, maxSize);
 
-                current.rectTransform.anchorMin = new Vector2(xOffset, yOffset);
-                current.rectTransform.anchorMax = new Vector2(xOffset + size, yOffset + size);
+                    current.rectTransform.anchorMin = new Vector2(xOffset, yOffset);
+                    current.rectTransform.anchorMax = new Vector2(xOffset + size, yOffset + size);
 
-                current.color = GetRandomColor(minColor, maxColor);
-                current.gameObject.SetActive(true);
+                    current.color = GetRandomColor(minColor, maxColor);
+                    current.gameObject.SetActive(true);
+                }
+                victoryEffectsActive = true;
             }
         }
 

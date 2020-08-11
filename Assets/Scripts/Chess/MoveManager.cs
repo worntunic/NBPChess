@@ -222,11 +222,16 @@ namespace NBPChess
         public List<ChessMove> AllAvailableMoves(PieceColor color)
         {
             List<ChessMove> allMoves = new List<ChessMove>();
+            List<Piece> piecesCpy = new List<Piece>();
             for (int i = 0; i < pieces.Count; i++)
             {
-                if (pieces[i].GetColor() == color)
+                piecesCpy.Add(pieces[i]);
+            }
+            for (int i = 0; i < piecesCpy.Count; i++)
+            {
+                if (piecesCpy[i].GetColor() == color)
                 {
-                    allMoves.AddRange(AvailableMovesForPiece(pieces[i]));
+                    allMoves.AddRange(AvailableMovesForPiece(piecesCpy[i]));
                 }
             }
             return allMoves;
@@ -452,7 +457,7 @@ namespace NBPChess
             }
         }
 
-        private bool IsKingInCheck(PieceColor color)
+        public bool IsKingInCheck(PieceColor color)
         {
             List<Tile> threathenedSpaces = GetThreatenedSpaces(color);
             for (int i = 0; i < threathenedSpaces.Count; i++)

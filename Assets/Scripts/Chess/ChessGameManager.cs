@@ -29,6 +29,8 @@ namespace NBPChess
         public PieceColor localPlayerColor = PieceColor.White;
         private int onlineGameID;
         public bool createOnAwake = false;
+        public PlayerInfoPanel blackPlayerPanel, whitePlayerPanel;
+        private PlayerData localPlayerData, oppPlayerData;
 
         public void Awake()
         {
@@ -51,6 +53,7 @@ namespace NBPChess
             pawnPromotionUI.Initialize(artSets[currentArtSet], moveManager);
             pieceManager.Initalize(board, artSets[currentArtSet], moveManager);
             moveHistoryUI.Initialize(moveManager);
+            endGameController.CloseVictoryScreen();
         }
 
         public void ChangeArt()
@@ -102,6 +105,13 @@ namespace NBPChess
             }
         }
 
+        public void UpdatePlayerInfo(GameInfoWithMoves gameInfo)
+        {
+            bool whiteMove = GetGameState() == GameState.WhiteMove;
+            whitePlayerPanel.Setup(gameInfo.gamedata.wplayername, gameInfo.gamedata.wtimeleft, gameInfo.gamedata.wplayerrank, whiteMove);
+            blackPlayerPanel.Setup(gameInfo.gamedata.bplayername, gameInfo.gamedata.btimeleft, gameInfo.gamedata.bplayerrank, !whiteMove);
+        }
+
         private void TieOccurred()
         {
             endGameController.OpenTieScreen();
@@ -109,7 +119,14 @@ namespace NBPChess
 
         private void PlayerWon(PieceColor winnerColor)
         {
-            endGameController.OpenVictoryScreen(winnerColor);
+            if (!localGame)
+            {
+                endGameController.OpenVictoryScreen(localPlayerColor == winnerColor);
+            } else
+            {
+                endGameController.OpenVictoryScreen(true);
+            }
+            //endGameController.OpenVictoryScreen(winnerColor);
         }
 
         public GameState GetGameState()
@@ -146,6 +163,7 @@ namespace NBPChess
             {
                 localPlayerColor = PieceColor.Black;
             }
+
             //Get opponent info (TODO)
             //Insert moves
             CreateGame();
@@ -154,6 +172,11 @@ namespace NBPChess
             {
                 AddMove(gameInfo.moves[i], colors[i % 2]);
             }
+            if (!CanPieceMove(localPlayerColor, false))
+            {
+                webController.WaitForGameState(onlineGameID);
+            }
+            UpdatePlayerInfo(gameInfo);
         }
 
         public void AddMove(string algebraicMove, PieceColor player)
@@ -166,6 +189,7 @@ namespace NBPChess
         {
             ChessMove move = AlgebraicNotation.ToChessMove(gameInfo.moves[gameInfo.moves.Count - 1], moveManager, GetOpponentColor());
             moveManager.DoMove(move, false, false);
+            UpdatePlayerInfo(gameInfo);
         }
 
         private PieceColor GetOpponentColor()

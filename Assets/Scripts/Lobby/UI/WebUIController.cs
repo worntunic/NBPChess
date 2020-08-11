@@ -1,4 +1,5 @@
-﻿using NBPChess.Web;
+﻿using NBPChess.UI;
+using NBPChess.Web;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -44,6 +45,7 @@ namespace NBPChess.Lobby.UI
         private GameRow curSelectedRow;
         private bool isCurSelected;
         private bool inChessGame = false;
+        
 
         public void Awake()
         {
@@ -183,6 +185,7 @@ namespace NBPChess.Lobby.UI
         }
         private void OnActiveGamesGot(FullPlayerData data)
         {
+            currentPlayerData.rank = data.rank;
             gameTable.PopulateRows(data.activeGames);
         }
         private void OnFindGame(GameResponse gameResponse)
@@ -206,7 +209,11 @@ namespace NBPChess.Lobby.UI
         {
             if (inChessGame)
             {
-                WaitForGameState(gameResponse.game.id);
+                chessGameManager.UpdatePlayerInfo(gameResponse.game);
+                if (gameResponse.game.gamedata.gamestate == GameState.BlackMove || gameResponse.game.gamedata.gamestate == GameState.WhiteMove)
+                {
+                    WaitForGameState(gameResponse.game.id);
+                }
             }
         }
         private void OnGameStateFinished(GameWithMovesResponse gameResponse)
@@ -289,6 +296,7 @@ namespace NBPChess.Lobby.UI
             ActivateChessScreen();
             
             chessGameManager.LoadOnlineGame(gameResponse.game, currentPlayerData);
+            
         }
 
 

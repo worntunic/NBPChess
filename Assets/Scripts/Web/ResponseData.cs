@@ -74,6 +74,10 @@ namespace NBPChess.Web
     {
         public int wplayer;
         public int bplayer;
+        public string wplayername;
+        public string bplayername;
+        public int wplayerrank;
+        public int bplayerrank;
         public int wtimeleft;
         public int btimeleft;
         public GameState gamestate;

@@ -109,15 +109,34 @@ namespace NBPChess
 
         public static ChessMove ToChessMove(string algebraicMove, MoveManager moveManager, PieceColor color)
         {
+            PieceColor oppColor;
+            if (color == PieceColor.White)
+            {
+                oppColor = PieceColor.Black;
+            } else
+            {
+                oppColor = PieceColor.White;
+            }
+            string modAlgMove = algebraicMove;
+            //Strip not checked
+            /*int curChar = 0;
+            if (modAlgMove[curChar] == oppKingInCheck)
+            {
+                //curChar++;
+                modAlgMove = modAlgMove.Substring(1);
+            }*/
             List<ChessMove> allMoves = moveManager.AllAvailableMoves(color);
             foreach (ChessMove move in allMoves)
             {
-                if (ToAlgebraic(move, moveManager) == algebraicMove)
+                ChessMove fullMove = moveManager.DoMove(move, true, false);
+                fullMove.checksOpponent = moveManager.IsKingInCheck(oppColor);
+                moveManager.UndoMove(fullMove, true, false);
+                if (ToAlgebraic(fullMove, moveManager) == modAlgMove)
                 {
                     return move;
                 }
             }
-            throw new Exception("Move cannot be performed");
+            throw new Exception($"Move {algebraicMove} cannot be performed");
             /*ChessMove chessMove = new ChessMove();
             if (string.Equals(algebraicMove, queenSideCastle))
             {
