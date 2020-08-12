@@ -54,6 +54,8 @@ namespace NBPChess
             pieceManager.Initalize(board, artSets[currentArtSet], moveManager);
             moveHistoryUI.Initialize(moveManager);
             endGameController.CloseVictoryScreen();
+
+            moveManager.afterMovePlayed += MovePlayed;
         }
 
         public void ChangeArt()
@@ -67,12 +69,11 @@ namespace NBPChess
             }
         }
 
-        public void MovePlayed(ChessMove move, bool newMove)
+        public void MovePlayed(ChessMove move, string anMove, bool newMove)
         {
             ChangeGameState();
             if (!localGame && newMove)
             {
-                string anMove = AlgebraicNotation.ToAlgebraic(move, moveManager);
                 webController.PlayMove(onlineGameID, anMove, gameState);
             }
         }

@@ -29,9 +29,8 @@ namespace NBPChess.UI
             initialized = true;
         }
 
-        private void OnMovePlayed(ChessMove move)
+        private void OnMovePlayed(ChessMove move, string moveString, bool newMove)
         {
-            string moveString = AlgebraicNotation.ToAlgebraic(move, moveManager);
             int numberOfMoves = moveManager.GetNumberOfMoves();
             /*for(int i = 0; i < entries.Count; i++)
             {

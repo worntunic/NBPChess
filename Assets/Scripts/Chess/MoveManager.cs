@@ -125,8 +125,9 @@ namespace NBPChess
         private Dictionary<Piece, List<Tile>> blackThreatenedSpaces = new Dictionary<Piece, List<Tile>>();
         public delegate void PawnPromotionStarted(PieceColor color);
         public event PawnPromotionStarted onPawnPromotionStarted;
-        public delegate void OnMovePlayed(ChessMove move);
+        public delegate void OnMovePlayed(ChessMove move, string algebraicMove, bool newMove);
         public event OnMovePlayed beforeMovePlayed;
+        public event OnMovePlayed afterMovePlayed;
         private bool waitingForPawnPromotion = false;
         private ChessMove incompletePromotionMove;
         //private bool isCurrentStateActive = true;
@@ -257,6 +258,7 @@ namespace NBPChess
 
         public ChessMove DoMove(ChessMove move, bool simulate = false, bool newMove = true)
         {
+            string algebraicMove = "";
             if (!simulate && !CanPieceMove(move.activePiece.GetColor(), newMove))
             {
                 return move;
@@ -293,9 +295,10 @@ namespace NBPChess
                 {
                     moveHistory.Add(move);
                     allMoveHistory.Add(move);
+                    algebraicMove = AlgebraicNotation.ToAlgebraic(move, this);
                     if (beforeMovePlayed != null)
                     {
-                        beforeMovePlayed(move);
+                        beforeMovePlayed(move, algebraicMove, newMove);
                     }
                 }
                 if (!move.isPromotionMove)
@@ -313,7 +316,7 @@ namespace NBPChess
                 }
                 if (!simulate)
                 {
-                    gameManager.MovePlayed(move, newMove);
+                    afterMovePlayed?.Invoke(move, algebraicMove, newMove);
                 }
                 ChangeThreatenedSpaces();
 

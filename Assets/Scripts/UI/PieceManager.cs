@@ -44,6 +44,9 @@ namespace NBPChess
                         piecesWithUI.Remove(piece);
                     }
                 }
+                foreach (KeyValuePair<Piece, PieceUI> pair in piecesWithUI) {
+                    Destroy(pair.Value.gameObject);
+                }
             }
             piecesWithUI = new Dictionary<Piece, PieceUI>();
             piecesState = new List<Piece>();

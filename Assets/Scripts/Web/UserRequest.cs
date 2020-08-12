@@ -59,7 +59,8 @@ namespace NBPChess.Web {
             }
         }
         //URL suffices
-        private const string rootUrl = "https://localhost:44330";
+        private string rootUrl = "https://localhost";
+        private string rootPort = ":44330";
         private const string registerSuffix = "/api/Player/Register";
         private const string loginSuffix = "/api/Player/Login";
         private const string activeGamesSuffix = "/api/Player/ActiveGames";
@@ -83,7 +84,19 @@ namespace NBPChess.Web {
         {
             webRequest = new WebRequest(rootUrl);
         }
-
+        public void SetRootURL(string rootURL)
+        {
+            this.rootUrl = rootURL;
+            webRequest.SetURL(GetRootURL());
+        }
+        public string GetRootWithoutPort()
+        {
+            return rootUrl;
+        }
+        private string GetRootURL()
+        {
+            return rootUrl + rootPort;
+        }
         public void RegisterPlayer(string username, string password, MonoBehaviour caller)
         {
             LoginRequestData lData = new LoginRequestData(username, password);

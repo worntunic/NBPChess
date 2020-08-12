@@ -125,15 +125,30 @@ namespace NBPChess
                 //curChar++;
                 modAlgMove = modAlgMove.Substring(1);
             }*/
+            bool promotionMove = false;
+            PieceType promotionType = PieceType.Queen;
+            if (algebraicMove[algebraicMove.Length - 2] == promotion)
+            {
+                modAlgMove = algebraicMove.Substring(0, algebraicMove.Length - 1);
+                promotionMove = true;
+                promotionType = GetPieceName(algebraicMove[algebraicMove.Length - 1].ToString());
+            }
             List<ChessMove> allMoves = moveManager.AllAvailableMoves(color);
             foreach (ChessMove move in allMoves)
             {
                 ChessMove fullMove = moveManager.DoMove(move, true, false);
                 fullMove.checksOpponent = moveManager.IsKingInCheck(oppColor);
                 moveManager.UndoMove(fullMove, true, false);
-                if (ToAlgebraic(fullMove, moveManager) == modAlgMove)
+                string genMove = ToAlgebraic(fullMove, moveManager);
+                if (genMove == modAlgMove)
                 {
-                    return move;
+                    if (promotionMove)
+                    {
+                        fullMove.isPromotionMove = true;
+                        fullMove.isCompletePromotionMove = true;
+                        fullMove.promotionType = promotionType;
+                    }
+                    return fullMove;
                 }
             }
             throw new Exception($"Move {algebraicMove} cannot be performed");

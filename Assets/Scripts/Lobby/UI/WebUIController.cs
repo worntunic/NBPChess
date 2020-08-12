@@ -45,14 +45,26 @@ namespace NBPChess.Lobby.UI
         private GameRow curSelectedRow;
         private bool isCurSelected;
         private bool inChessGame = false;
+        [Header("IPConfiguration Panel")]
+        public GameObject ipConfigPanel;
+        public InputField ipConfigInput;
+        public Button ipConfigConfirm;
+        private const string ipConfigPPKey = "npbc-ip";
+        private const string ipConfigDefaultValue = "localhost";
+        private const KeyCode openIpConfigKey = KeyCode.L;
+        private const KeyCode openIpConfigKeyModifier = KeyCode.LeftControl;
+        private bool ipConfigOpen = false;
         
 
         public void Awake()
         {
+            CloseIpConfig();
             playerRequest = new PlayerRequest();
+            LoadIP();
             ActivateLoginScreen();
             OnDeselect();
         }
+
         private void OnEnable()
         {
             //Login Sub UI
@@ -77,6 +89,8 @@ namespace NBPChess.Lobby.UI
             playerRequest.onWaitForGameStateFinished += OnGameStateFinished;
             //Chess Sub UI
             exitChessGameButton.onClick.AddListener(OnExitChessGameClicked);
+            //IP Sub UI
+            ipConfigConfirm.onClick.AddListener(OnIpConfigConfirm);
         }
         private void OnDisable()
         {
@@ -104,6 +118,13 @@ namespace NBPChess.Lobby.UI
             playerRequest.onWaitForGameStateFinished -= OnGameStateFinished;
             //Chess Sub UI
             exitChessGameButton.onClick.RemoveListener(OnExitChessGameClicked);
+            //IP Sub UI
+            ipConfigConfirm.onClick.RemoveListener(OnIpConfigConfirm);
+        }
+
+        private void Update()
+        {
+            CheckForIpConfig();
         }
         //UI Events
         public void OnLoginClicked()
@@ -298,8 +319,52 @@ namespace NBPChess.Lobby.UI
             chessGameManager.LoadOnlineGame(gameResponse.game, currentPlayerData);
             
         }
-
-
+        //IP Config
+        private void LoadIP()
+        {
+            if (!PlayerPrefs.HasKey(ipConfigPPKey))
+            {
+                PlayerPrefs.SetString(ipConfigPPKey, ipConfigDefaultValue);
+            }
+            string ip = PlayerPrefs.GetString(ipConfigPPKey);
+            playerRequest.SetRootURL(ip);
+        }
+        private void SetIP(string IP)
+        {
+            PlayerPrefs.SetString(ipConfigPPKey, IP);
+            LoadIP();
+        }
+        private void OnIpConfigConfirm()
+        {
+            string ip = ipConfigInput.text;
+            SetIP(ip);
+            CloseIpConfig();
+        }
+        private void OpenIpConfig()
+        {
+            ipConfigOpen = true;
+            ipConfigPanel.SetActive(true);
+            ipConfigInput.text = playerRequest.GetRootWithoutPort();
+        }
+        private void CloseIpConfig()
+        {
+            ipConfigOpen = false;
+            ipConfigPanel.SetActive(false);
+        }
+        private void CheckForIpConfig()
+        {
+            if (Input.GetKeyDown(openIpConfigKey) && Input.GetKey(openIpConfigKeyModifier))
+            {
+                if (ipConfigOpen)
+                {
+                    CloseIpConfig();
+                } else
+                {
+                    OpenIpConfig();
+                }
+                
+            }
+        }
     }
 }
 
